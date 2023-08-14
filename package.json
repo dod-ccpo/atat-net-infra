@@ -22,6 +22,7 @@
   "dependencies": {
     "aws-cdk-lib": "2.87.0",
     "constructs": "^10.0.0",
-    "detect-secrets": "^1.0.6"
+    "detect-secrets": "^1.0.6",
+    "pre-commit": "^1.2.2"
   }
 }

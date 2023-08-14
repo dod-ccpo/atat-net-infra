@@ -1,0 +1,32 @@
+---
+name: Build and Test API
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  secretScan:
+    name: Scan for secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+          architecture: "x64"
+      - name: Install detect-secrets
+        run: pip install detect-secrets
+      - name: Scan for new (not-yet-allowed) secrets
+        run: >-
+          git ls-files -z |
+          xargs -0 detect-secrets-hook --baseline .secrets.baseline

@@ -15,6 +15,7 @@
       name: Run Tests
       runs-on: ubuntu-latest
       steps:
+        # Sonar cloud scan
         - name: Trigger SonarCloud
           uses: SonarSource/sonarcloud-github-action@master
           env:

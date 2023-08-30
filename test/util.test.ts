@@ -3,52 +3,36 @@ import * as utils from "../lib/util";
 const testEnvironmentIds = [
   // Jira ticket ID-looking strings should be valid regardless of how they
   // get entered
-  {
-    inputs: ["AT-0001", "AT0001", "at0001", "aT0001", "At0001", "AT_0_0_0_1"],
+  {inputs: ["AT-0001", "AT0001", "at0001", "aT0001", "At0001", "AT_0_0_0_1"],
     expectedName: "At0001",
-    expectedId: "at0001",
-  },
+    expectedId: "at0001",},
   // And "special" environment names should work the same as sandbox environments
-  {
-    inputs: ["Dev", "Dev!", "dev", "DEV", "dEv", "_dev_"],
+  {inputs: ["Dev", "Dev!", "dev", "DEV", "dEv", "_dev_"],
     expectedName: "Dev",
-    expectedId: "dev",
-  },
-  {
-    inputs: ["Staging", "Staging!", "staging", "STAGING", "sTaGiNg", "_staging_"],
+    expectedId: "dev",},
+  {inputs: ["Staging", "Staging!", "staging", "STAGING", "sTaGiNg", "_staging_"],
     expectedName: "Staging",
-    expectedId: "staging",
-  },
-  {
-    inputs: ["Prod", "Prod!", "prod", "PROD", "PrOd", "_prod_"],
+    expectedId: "staging",},
+  {inputs: ["Prod", "Prod!", "prod", "PROD", "PrOd", "_prod_"],
     expectedName: "Prod",
-    expectedId: "prod",
-  },
+    expectedId: "prod",},
   // Numbered "special" environment names should be treated like any other
   // string
-  {
-    inputs: ["Dev1", "dev1", "DEV1", "dEv1", "_dev1_", "Dev1!"],
+  {inputs: ["Dev1", "dev1", "DEV1", "dEv1", "_dev1_", "Dev1!"],
     expectedName: "Dev1",
-    expectedId: "dev1",
-  },
+    expectedId: "dev1",},
   // Totally special or empty names should not break the function
-  {
-    inputs: ["", "&*(^&%^&$^%%*&", "_-__--_"],
+  {inputs: ["", "&*(^&%^&$^%%*&", "_-__--_"],
     expectedName: "",
-    expectedId: "",
-  },
+    expectedId: "",},
   // Even multi-word names get only one capital letter
-  {
-    inputs: ["LongEnvironmentName", "longenvironmentname", "lOnGeNvIrOnMeNtNaMe"],
+  {inputs: ["LongEnvironmentName", "longenvironmentname", "lOnGeNvIrOnMeNtNaMe"],
     expectedName: "Longenvironmentname",
-    expectedId: "longenvironmentname",
-  },
+    expectedId: "longenvironmentname",},
   // Very short names should still work too
-  {
-    inputs: ["A", "a", "_A_", "_a_"],
+  {inputs: ["A", "a", "_A_", "_a_"],
     expectedName: "A",
-    expectedId: "a",
-  },
+    expectedId: "a",},
 ];
 
 describe("Validate environment normalization", () => {

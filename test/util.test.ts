@@ -3,9 +3,11 @@ import * as utils from "../lib/util";
 const testEnvironmentIds = [
   // Jira ticket ID-looking strings should be valid regardless of how they
   // get entered
-  {inputs: ["AT-0001", "AT0001", "at0001", "aT0001", "At0001", "AT_0_0_0_1"],
+  {
+    inputs: ["AT-0001", "AT0001", "at0001", "aT0001", "At0001", "AT_0_0_0_1"],
     expectedName: "At0001",
-    expectedId: "at0001",},
+    expectedId: "at0001",
+  },
   // And "special" environment names should work the same as sandbox environments
   {inputs: ["Dev", "Dev!", "dev", "DEV", "dEv", "_dev_"],
     expectedName: "Dev",

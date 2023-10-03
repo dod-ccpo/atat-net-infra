@@ -6,6 +6,7 @@ import { GovCloudCompatibilityAspect } from "./aspects/govcloud-compatibility";
 // import * as s3 from "aws-cdk-lib/aws-s3";
 //import { NagSuppressions, NIST80053R4Checks } from "cdk-nag";
 import { AtatContextValue } from "./context-values";
+import { NetInfraPipelineStage } from "./atat-net-infra-pipeline-stage"
 
 
 // export interface NetInfraStackProps extends cdk.StackProps {
@@ -76,7 +77,7 @@ export class AtatPipelineStack extends cdk.Stack {
       }),
     });
     pipeline.addStage(
-      new AtatNetFirewall(this, props.environmentName, {
+      new NetInfraPipelineStage(this, props.environmentName, {
         // vpcCidr: props.vpcCidr,
         environmentName: props.environmentName,
         // notificationEmail: props.notificationEmail,
@@ -89,4 +90,4 @@ export class AtatPipelineStack extends cdk.Stack {
   }
 }
 
-// export { AtatNetInfraStack };
+

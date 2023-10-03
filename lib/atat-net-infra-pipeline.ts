@@ -20,7 +20,7 @@ export class AtatPipelineStack extends cdk.Stack {
     super(scope, id, props);
     const synthParams = [
       AtatContextValue.ENVIRONMENT_ID.toCliArgument(props.environmentName),
-      AtatContextValue.VPC_CIDR.toCliArgument(props.vpcCidr),
+    //   AtatContextValue.VPC_CIDR.toCliArgument(props.vpcCidr),
       AtatContextValue.VERSION_CONTROL_BRANCH.toCliArgument(props.branch),
       AtatContextValue.NOTIFICATION_EMAIL.toCliArgument(props.notificationEmail),
     ];

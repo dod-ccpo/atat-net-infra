@@ -19,7 +19,7 @@ export interface AtatWebApiStackProps extends cdk.StackProps {
 }
 
 export class AtatNetInfraStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: AtatWebApiStackProps) {
     let result = null;
     super(scope, id);
 

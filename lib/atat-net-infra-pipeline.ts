@@ -23,6 +23,7 @@ class AtatNetFirewall extends cdk.Stage {
     super(scope, id, props);
 
     const atat = new AtatNetInfraStack(this, "Dev-Firewall", {
+      environmentName: props.environmentName,
     });
     
   }

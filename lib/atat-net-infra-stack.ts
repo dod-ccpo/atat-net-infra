@@ -13,8 +13,8 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 //import { NagSuppressions, NIST80053R4Checks } from "cdk-nag";
 import { AtatContextValue } from "./context-values";
 //import { AtatSharedDataStack } from "./atat-shared-data-stack";
-export class AtatWebApiStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: AtatWebApiStack) {
+export class AtatNetInfraStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props: AtatNetInfraStack) {
     let result = null;
     super(scope, id);
 const testBucket = new s3.Bucket(this, "TestBucket", {

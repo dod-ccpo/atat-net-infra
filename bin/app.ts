@@ -12,7 +12,60 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
   const vpcCidrParam = AtatContextValue.VPC_CIDR.resolve(app);
   const deployRegion = AtatContextValue.DEPLOY_REGION.resolve(app);
   const branchParam = AtatContextValue.VERSION_CONTROL_BRANCH.resolve(app);
-  const environmentName = environmentParam;
+//   const environmentName = environmentParam;
+
+  if (!utils.isString(environmentParam)) {
+        const err = `An EnvironmentId must be provided (use the ${AtatContextValue.ENVIRONMENT_ID} context key)`;
+        console.error(err);
+        throw new Error(err);
+      }
+    //   if (utils.isString(apiDomainParam) !== utils.isString(apiCertParam)) {
+    //     const err =
+    //       `Both or neither of ${AtatContextValue.API_DOMAIN_NAME} ` +
+    //       `and ${AtatContextValue.API_CERTIFICATE_ARN} must be specified`;
+    //     console.error(err);
+    //     throw new Error(err);
+    //   } else if (apiDomainParam && apiCertParam) {
+    //     apiCertOptions = {
+    //       domainName: apiDomainParam,
+    //       acmCertificateArn: apiCertParam,
+    //     };
+    //   }
+      const environmentName = utils.normalizeEnvironmentName(environmentParam);
+      // We need to be able to handle the value being undefined or some unexpected type.
+      // Because "false" (as a string) is truthy, we need to allow specific values.
+      const isSandbox = ["true", "1", "yes"]
+
+    //   if (isSandbox) {
+    //     // Sandbox environments (which do NOT have a VPC) must NOT have a VpcCidr parameter
+    //     if (utils.isString(vpcCidrParam) || validateCidr(vpcCidrParam)) {
+    //       const err = `${AtatContextValue.VPC_CIDR} must NOT be provided for Sandbox environments.`;
+    //       console.error(err);
+    //       throw new Error(err);
+    //     }
+    //     cdk.Aspects.of(app).add(new RemovalPolicySetter({ globalRemovalPolicy: cdk.RemovalPolicy.DESTROY }));
+    //     cdk.Aspects.of(app).add(new GovCloudCompatibilityAspect());
+    //   } else {
+    //     // Non Sandbox environments (which have a VPC) must have a VpcCidr parameter
+    //     if (!utils.isString(vpcCidrParam) || !validateCidr(vpcCidrParam)) {
+    //       const err =
+    //         `A VpcCidr must be provided for non-Sandbox environments (use the ${AtatContextValue.VPC_CIDR} context key) ` +
+    //         "and it must be a valid CIDR block.";
+    //       console.error(err);
+    //       throw new Error(err);
+    //     }
+    //     if (!utils.isString(branchParam)) {
+    //       const err = `A Branch name must be provided (use the ${AtatContextValue.VERSION_CONTROL_BRANCH} context key)`;
+    //       console.error(err);
+    //       throw new Error(err);
+    //     }
+        // Context values can not be supplied via the CLI during self-mutation; therefore, we
+        // cannot include the environment name in the stack at this time. This does limit
+        // us to having a single pipeline per account until we come up with a more thorough
+        // solution (but that is likely okay for now). A workaround to this is that if you
+        // do need to perform integration testing for the pipeline (by building a test stack),
+        // you can just temporarily change the `id` parameter from "Pipeline" to another
+        // static value.
 
 
   const pipelineStack = new AtatPipelineStack(app, "AtatEnvironmentPipeline", {
@@ -29,6 +82,25 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
     },
   });
 return app;
+}
+
+function validateCidr(cidr: string): boolean {
+    const AWS_MIN_NETMASK = 16;
+    const AWS_MAX_NETMASK = 28;
+    try {
+      const [address, prefix] = cidr.split("/");
+      const prefixInt = parseInt(prefix);
+      if (!prefixInt || prefixInt < AWS_MIN_NETMASK || prefixInt > AWS_MAX_NETMASK) {
+        return false;
+      }
+      const octets = address
+        .split(".")
+        .map((oct) => parseInt(oct))
+        .filter((oct) => oct >= 0 && oct <= 255);
+      return octets.length === 4;
+    } catch (err) {
+      return false;
+    }
 }
 // import * as cdk from "aws-cdk-lib";
 // import * as utils from "../lib/util";

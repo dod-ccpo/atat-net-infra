@@ -5,6 +5,7 @@ import { RemovalPolicySetter } from "../lib/aspects/removal-policy";
 import { GovCloudCompatibilityAspect } from "../lib/aspects/govcloud-compatibility";
 import { AtatContextValue } from "../lib/context-values";
 import { AtatPipelineStack } from "../lib/atat-net-infra-pipeline";
+import { AtatNetInfraStack } from "../lib/atat-net-infra-stack";
 
 export function createApp(this: any, props?: cdk.AppProps): cdk.App {
   const app = new cdk.App(props);
@@ -22,6 +23,10 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
       const environmentName = utils.normalizeEnvironmentName(environmentParam);
       // We need to be able to handle the value being undefined or some unexpected type.
       // Because "false" (as a string) is truthy, we need to allow specific values.
+
+      const apiStack = new AtatNetInfraStack(app, `${environmentName}WebApi`, {
+        environmentName,
+      });
 
   const pipelineStack = new AtatPipelineStack(app, "AtatEnvironmentPipeline", {
     environmentName,

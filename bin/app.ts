@@ -4,7 +4,7 @@ import * as utils from "../lib/util";
 import { RemovalPolicySetter } from "../lib/aspects/removal-policy";
 import { GovCloudCompatibilityAspect } from "../lib/aspects/govcloud-compatibility";
 import { AtatContextValue } from "../lib/context-values";
-import { AtatPipelineStack } from "../lib/atat-net-infra-pipeline";
+import { AtatPipelineStack } from "../lib/atat-net-infra-stack";
 
 export function createApp(this: any, props?: cdk.AppProps): cdk.App {
   const app = new cdk.App(props);

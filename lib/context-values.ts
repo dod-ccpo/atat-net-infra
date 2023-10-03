@@ -24,7 +24,7 @@ export class AtatContextValue {
    * in AWS Secrets Manager for safety and it must hav the `repo` and `admin:repo_hooks`
    * permissions associated with it.
    */
-  public static readonly GITHUB_PAT_NAME = new AtatContextValue("atat:GitHubPatName", "auth/github/pat");
+  public static readonly GITHUB_PAT_NAME = new AtatContextValue("atat:GitHubPatName", "dev/github/pat");
 
   /**
    * The GitHub repository that stores the ATAT/HOTH API infrastructure and application code.

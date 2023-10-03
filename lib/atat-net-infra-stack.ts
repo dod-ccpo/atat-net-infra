@@ -16,7 +16,7 @@ import { AtatContextValue } from "./context-values";
 
 export interface AtatNetInfraStackProps extends cdk.StackProps {
   environmentName: string;
-  isSandbox?: boolean;
+
 }
 
 export class AtatNetInfraStack extends cdk.Stack {
@@ -24,8 +24,8 @@ export class AtatNetInfraStack extends cdk.Stack {
     let result = null;
     super(scope, id);
 
-const { environmentName } = props;
-const testBucket = new s3.Bucket(this, `${environmentName}NetFirewall-Bucket`, {
+
+const testBucket = new s3.Bucket(this, `NetFirewall-Bucket`, {
   encryption: s3.BucketEncryption.S3_MANAGED,
   enforceSSL: true,
   blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -35,3 +35,7 @@ const testBucket = new s3.Bucket(this, `${environmentName}NetFirewall-Bucket`, {
 }
 )}
 }
+
+// const api = new AtatRestApi(this, "S3Bucket-Firewall");
+
+// }

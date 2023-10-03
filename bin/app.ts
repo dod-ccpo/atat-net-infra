@@ -9,7 +9,7 @@ import { AtatPipelineStack } from "../lib/atat-net-infra-pipeline";
 export function createApp(this: any, props?: cdk.AppProps): cdk.App {
   const app = new cdk.App(props);
   const environmentParam = AtatContextValue.ENVIRONMENT_ID.resolve(app);
-  const vpcCidrParam = AtatContextValue.VPC_CIDR.resolve(app);
+  // const vpcCidrParam = AtatContextValue.VPC_CIDR.resolve(app);
   const deployRegion = AtatContextValue.DEPLOY_REGION.resolve(app);
   const branchParam = AtatContextValue.VERSION_CONTROL_BRANCH.resolve(app);
 //   const environmentName = environmentParam;
@@ -25,7 +25,7 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
 
   const pipelineStack = new AtatPipelineStack(app, "AtatEnvironmentPipeline", {
     environmentName,
-    vpcCidr: vpcCidrParam,
+    // vpcCidr: vpcCidrParam,
     repository: AtatContextValue.VERSION_CONTROL_REPO.resolve(app),
     branch: branchParam,
     githubPatName: AtatContextValue.GITHUB_PAT_NAME.resolve(app),

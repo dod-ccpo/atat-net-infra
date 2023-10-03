@@ -24,7 +24,7 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
       // We need to be able to handle the value being undefined or some unexpected type.
       // Because "false" (as a string) is truthy, we need to allow specific values.
 
-      const apiStack = new AtatNetInfraStack(app, `${environmentName}WebApi`, {
+      const apiStack = new AtatNetInfraStack(app, `${environmentName}NetFirewall`, {
         environmentName,
       });
 

@@ -14,18 +14,18 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import { AtatContextValue } from "./context-values";
 //import { AtatSharedDataStack } from "./atat-shared-data-stack";
 
-export interface AtatProps {
+export interface AtatNetInfraStackProps extends cdk.StackProps {
   environmentName: string;
-  vpcCidr?: string;
-  notificationEmail?: string;
+  isSandbox?: boolean;
 }
-  //apiDomain?: ApiCertificateOptions;
 
 export class AtatNetInfraStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: AtatProps) {
+  constructor(scope: Construct, id: string, props: AtatNetInfraStackProps) {
     let result = null;
     super(scope, id);
-const testBucket = new s3.Bucket(this, "TestBucket", {
+
+const { environmentName } = props;
+const testBucket = new s3.Bucket(this, `${environmentName}NetFirewall-Bucket`, {
   encryption: s3.BucketEncryption.S3_MANAGED,
   enforceSSL: true,
   blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,

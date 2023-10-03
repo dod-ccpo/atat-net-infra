@@ -5,7 +5,6 @@ import { RemovalPolicySetter } from "../lib/aspects/removal-policy";
 import { GovCloudCompatibilityAspect } from "../lib/aspects/govcloud-compatibility";
 import { AtatContextValue } from "../lib/context-values";
 import { AtatPipelineStack } from "../lib/atat-net-infra-pipeline";
-import { AtatNetInfraStack } from "../lib/atat-net-infra-stack";
 
 export function createApp(this: any, props?: cdk.AppProps): cdk.App {
   const app = new cdk.App(props);
@@ -22,12 +21,6 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
         throw new Error(err);
       }
       const environmentName = utils.normalizeEnvironmentName(environmentParam);
-      // We need to be able to handle the value being undefined or some unexpected type.
-      // Because "false" (as a string) is truthy, we need to allow specific values.
-
-  // const apiStack = new AtatNetInfraStack(app, `${environmentName}-NetFirewall`, {
-  //       environmentName,
-  //     });
 
   const pipelineStack = new AtatPipelineStack(app, "AtatEnvironmentPipeline", {
     environmentName,
@@ -35,8 +28,6 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
     repository: AtatContextValue.VERSION_CONTROL_REPO.resolve(app),
     branch: branchParam,
     githubPatName: AtatContextValue.GITHUB_PAT_NAME.resolve(app),
-    // Set the notification email address, unless we're building the account where
-    // sandbox environments live because our inboxes would never recover.
     notificationEmail: environmentName,
     env: {
       region: deployRegion,

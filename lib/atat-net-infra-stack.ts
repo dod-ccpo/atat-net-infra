@@ -34,7 +34,3 @@ const testBucket = new s3.Bucket(this, `NetFirewall-Bucket`, {
 }
 )}
 }
-
-// const api = new AtatRestApi(this, "S3Bucket-Firewall");
-
-// }

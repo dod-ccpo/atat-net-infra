@@ -21,31 +21,7 @@ export interface AtatPipelineStackProps extends cdk.StackProps, AtatProps {
 class AtatNetFirewall extends cdk.Stage {
   constructor(scope: Construct, id: string, props: cdk.StageProps & AtatProps) {
     super(scope, id, props);
-    // const net = new AtatNetStack(this, "AtatNetworking", {
-    //   vpcCidr: props.vpcCidr,
-    //   vpcFlowLogBucket: props.vpcFlowLogBucket,
-    // });
-    const atat = new AtatNetInfraStack(this, "AtatHothApi", {
-      environmentName: props.environmentName,
-    });
-    // const sharedData = new AtatSharedDataStack(this, "AtatSharedData");
-    // const monitoredStacks: cdk.Stack[] = [net, atat];
-    // if (props.notificationEmail) {
-    //   monitoredStacks.push(
-    //     new AtatNotificationStack(this, "AtatNotifications", {
-    //       notificationEmail: props.notificationEmail,
-    //       topicEncryptionKey: sharedData.encryptionKey,
-    //     })
-    //   );
-    // }
-    // cdk.Aspects.of(this).add(new GovCloudCompatibilityAspect());
-    // cdk.Aspects.of(atat).add(new NIST80053R4Checks({ verbose: true }));
-    // NagSuppressions.addStackSuppressions(atat, [
-    //   {
-    //     id: "NIST.800.53.R4-IAMNoInlinePolicy",
-    //     reason: "Inline policies are used in a large number of situations by CDK constructs.",
-    //   },
-    // ]);
+    
   }
 }
 

@@ -14,13 +14,13 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import { AtatContextValue } from "./context-values";
 //import { AtatSharedDataStack } from "./atat-shared-data-stack";
 
-export interface AtatNetInfraStackProps extends cdk.StackProps {
-  environmentName: string;
+// export interface AtatNetInfraStackProps extends cdk.StackProps {
+//   environmentName: string;
 
-}
+// }
 
 export class AtatNetInfraStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: AtatNetInfraStackProps) {
+  constructor(scope: Construct, id: string, props: cdk.StackProps) {
     let result = null;
     super(scope, id);
 

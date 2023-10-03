@@ -33,20 +33,18 @@ import { AtatNetS3Stack } from './atat-net-s3';
 //       // });
 //     }
 // }
-export interface AtatProps {
-    environmentName: string;
-    vpcCidr?: string;
-    notificationEmail?: string;
-    //apiDomain?: ApiCertificateOptions;
-}
+// export interface AtatProps {
+//     environmentName: string;
+//     vpcCidr?: string;
+//     notificationEmail?: string;
+//     //apiDomain?: ApiCertificateOptions;
+// }
 
 export class NetInfraPipelineStage extends cdk.Stage {
-  constructor(scope: Construct, id: string, props: cdk.StageProps & AtatProps) {
+  constructor(scope: Construct, id: string, props?: cdk.StageProps) {
     super(scope, id, props);
 
-    const mys3 = new AtatNetS3Stack(this, props.environmentName, {
-        environmentName: props.environmentName
-    });
+    const mys3 = new AtatNetS3Stack(this, 's3' );
     // const importedFirewallPolicyArn = cdk.Fn.importValue('FirewallPolicyArn');
     // const importedVpcId = cdk.Fn.importValue('VpcId');
     // Create the Network Firewall stack and reference the policy ID

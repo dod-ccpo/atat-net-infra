@@ -13,14 +13,18 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 //import { NagSuppressions, NIST80053R4Checks } from "cdk-nag";
 import { AtatContextValue } from "./context-values";
 //import { AtatSharedDataStack } from "./atat-shared-data-stack";
+
+export interface AtatWebApiStackProps extends cdk.StackProps {
+  environmentName: string;
+}
+
 export class AtatNetInfraStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: AtatNetInfraStack) {
+  constructor(scope: Construct, id: string, props: AtatWebApiStackProps) {
     let result = null;
     super(scope, id);
-const testBucket = new s3.Bucket(this, "TestBucket", {
-  // Elastic Load Balancing Log Delivery requires SSE-S3 and _does not_ support
-  // SSE-KMS. This still ensures that log data is encrypted at rest.
-  // Default retention for object lock is 365 days
+
+
+const testBucket = new s3.Bucket(this, `NetFirewall-Bucket`, {
   encryption: s3.BucketEncryption.S3_MANAGED,
   enforceSSL: true,
   blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,

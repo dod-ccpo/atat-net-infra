@@ -8,8 +8,9 @@ import { AtatPipelineStack } from "../lib/atat-net-infra-pipeline";
 
 export function createApp(this: any, props?: cdk.AppProps): cdk.App {
   const app = new cdk.App(props);
+
   const environmentParam = AtatContextValue.ENVIRONMENT_ID.resolve(app);
-  const vpcCidrParam = AtatContextValue.VPC_CIDR.resolve(app);
+  // const vpcCidrParam = AtatContextValue.VPC_CIDR.resolve(app);
   const deployRegion = AtatContextValue.DEPLOY_REGION.resolve(app);
   const branchParam = AtatContextValue.VERSION_CONTROL_BRANCH.resolve(app);
 //   const environmentName = environmentParam;
@@ -20,17 +21,13 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
         throw new Error(err);
       }
       const environmentName = utils.normalizeEnvironmentName(environmentParam);
-      // We need to be able to handle the value being undefined or some unexpected type.
-      // Because "false" (as a string) is truthy, we need to allow specific values.
 
   const pipelineStack = new AtatPipelineStack(app, "AtatEnvironmentPipeline", {
     environmentName,
-    vpcCidr: vpcCidrParam,
+    // vpcCidr: vpcCidrParam,
     repository: AtatContextValue.VERSION_CONTROL_REPO.resolve(app),
     branch: branchParam,
     githubPatName: AtatContextValue.GITHUB_PAT_NAME.resolve(app),
-    // Set the notification email address, unless we're building the account where
-    // sandbox environments live because our inboxes would never recover.
     notificationEmail: environmentName,
     env: {
       region: deployRegion,

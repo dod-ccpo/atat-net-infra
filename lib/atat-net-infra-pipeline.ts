@@ -4,6 +4,7 @@ import { Construct } from "constructs";
 import { GovCloudCompatibilityAspect } from "./aspects/govcloud-compatibility";
 import { AtatContextValue } from "./context-values";
 import { AtatNetInfraStack } from "../lib/atat-net-infra-stack";
+import { AtatNetLambda } from "../lib/atat-net-lambda";
 // import { NagSuppressions, NIST80053R4Checks } from "cdk-nag";
 
 export interface AtatProps {
@@ -22,8 +23,11 @@ class AtatNetFirewall extends cdk.Stage {
   constructor(scope: Construct, id: string, props: cdk.StageProps & AtatProps) {
     super(scope, id, props);
 
-    const atat = new AtatNetInfraStack(this, "Dev-Firewall", {
+    const atats3 = new AtatNetInfraStack(this, "Dev-Firewall", {
       environmentName: props.environmentName,
+    });
+
+    const atatlambda = new AtatNetLambda(this, "Dev-Lambda-Firewall", {
     });
     
   }

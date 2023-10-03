@@ -21,6 +21,9 @@ export interface AtatPipelineStackProps extends cdk.StackProps, AtatProps {
 class AtatNetFirewall extends cdk.Stage {
   constructor(scope: Construct, id: string, props: cdk.StageProps & AtatProps) {
     super(scope, id, props);
+
+    const atat = new AtatNetInfraStack(this, "Dev-Firewall", {
+    });
     
   }
 }

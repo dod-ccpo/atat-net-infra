@@ -31,7 +31,7 @@ export class AtatContextValue {
    */
   public static readonly VERSION_CONTROL_REPO = new AtatContextValue(
     "atat:VersionControlRepo",
-    "dod-ccpo/atat-web-api"
+    "dod-ccpo/atat-net-infra"
   );
 
   /**

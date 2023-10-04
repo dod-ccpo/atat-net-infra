@@ -27,6 +27,7 @@
     "cdk-nag": "^2.27.151",
     "constructs": "^10.0.0",
     "detect-secrets": "^1.0.6",
+    "esbuild": "^0.19.4",
     "pre-commit": "^1.2.2"
   }
 }

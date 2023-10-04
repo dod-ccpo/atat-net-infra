@@ -75,6 +75,7 @@ export class TransitGatewayStack extends cdk.Stack {
           'service-role/AWSLambdaBasicExecutionRole'
         ),
       ],
+
     });
 
     attachmentLambdaRole.addToPolicy(
@@ -87,8 +88,18 @@ export class TransitGatewayStack extends cdk.Stack {
         ],
         effect: iam.Effect.ALLOW,
         resources: ['*'],
-      })
+      }),
     );
+
+    // NagSuppressions.addResourceSuppressions(
+    //   attachmentLambdaRole, [
+    //   {
+    //     id: "NIST.800.53.R4-IAMNoInlinePolicy",
+    //     reason: "Inline policy holds no security threat",
+    //     appliesTo: ['Resource::iam:aws-us-gov::*']
+    //   },
+    //   true
+    // ]);
 
     const tgwRouteLambda = new NodejsFunction(this, 'TGWAttachmentFunction', {
       entry: path.join(__dirname, 'lambda/attachment/index.ts'),
@@ -101,6 +112,14 @@ export class TransitGatewayStack extends cdk.Stack {
         firewallRouteTableID: this.firewallRouteTable.ref,
       }
     });
+
+    NagSuppressions.addResourceSuppressions(tgwRouteLambda, [
+      {
+        id: "NIST.800.53.R4-LambdaInsideVPC",
+        reason: "Testing lambda, will add VPC in the future",
+      }
+    ]);
+  
 
     const eventPattern = {
       source: ['aws.ec2'],

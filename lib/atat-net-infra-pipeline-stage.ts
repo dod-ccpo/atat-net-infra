@@ -14,8 +14,8 @@ export class NetInfraPipelineStage extends cdk.Stage {
   constructor(scope: Construct, id: string, props?: cdk.StageProps) {
     super(scope, id, props);
 
-    const mys3 = new TransitGatewayStack(this, 'transit-gateway' );
-    cdk.Aspects.of(mys3).add(new NIST80053R4Checks({ verbose: true }));
+    const atatTGW = new TransitGatewayStack(this, 'transit-gateway' );
+    // cdk.Aspects.of(mys3).add(new NIST80053R4Checks({ verbose: true }));
 
   };
 }

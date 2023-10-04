@@ -3,6 +3,7 @@ import * as pipelines from "aws-cdk-lib/pipelines";
 import { Construct } from "constructs";
 import { GovCloudCompatibilityAspect } from "./aspects/govcloud-compatibility";
 import { AtatContextValue } from "./context-values";
+import { NagSuppressions, NIST80053R4Checks, AwsSolutionsChecks } from 'cdk-nag';
 // import { AtatNetInfraStack } from "../lib/atat-net-infra-stack";
 // import { NagSuppressions, NIST80053R4Checks } from "cdk-nag";
 
@@ -14,6 +15,7 @@ export class NetInfraPipelineStage extends cdk.Stage {
     super(scope, id, props);
 
     const mys3 = new AtatNetS3Stack(this, 's3' );
+    cdk.Aspects.of(mys3).add(new NIST80053R4Checks({ verbose: true }));
 
   };
 }

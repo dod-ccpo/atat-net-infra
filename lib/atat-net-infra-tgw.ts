@@ -28,7 +28,7 @@ export class TransitGatewayStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps & AtatWebApiStackProps) {
     super(scope, id, props);
 
-    const atatKey = props?.environmentName
+    // const atatKey = environmentName
 
     this.transitGateway = new ec2.CfnTransitGateway(this, 'TransitGateway', {
       amazonSideAsn: 65224,
@@ -38,12 +38,12 @@ export class TransitGatewayStack extends cdk.Stack {
       defaultRouteTablePropagation: 'disable',
       dnsSupport: 'enable',
 
-      // tags: [
-      //   {
-      //     key: 'Name',
-      //     value: `${atatKey}-Transit-Gateway`,
-      //   },
-      // ],
+      tags: [
+        {
+          key: 'Name',
+          value: `props.environmentName-Transit-Gateway`,
+        },
+      ],
     });
 
     this.internalRouteTable = new ec2.CfnTransitGatewayRouteTable(

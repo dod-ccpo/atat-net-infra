@@ -3,11 +3,6 @@ import { Construct } from "constructs";
 import * as cdk from "aws-cdk-lib";
 
 
-// export interface NetInfraStackProps extends cdk.StackProps {
-//   environmentName: string;
-// }
-
-
 export class AtatNetS3Stack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     let result = null;

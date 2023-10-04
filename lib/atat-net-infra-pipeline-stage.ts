@@ -15,7 +15,7 @@ export class NetInfraPipelineStage extends cdk.Stage {
     super(scope, id, props);
 
     const atatTGW = new TransitGatewayStack(this, 'transit-gateway' );
-    // cdk.Aspects.of(mys3).add(new NIST80053R4Checks({ verbose: true }));
+    cdk.Aspects.of(atatTGW).add(new NIST80053R4Checks({ verbose: true }));
 
   };
 }

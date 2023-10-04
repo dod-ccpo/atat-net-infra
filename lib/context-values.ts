@@ -51,7 +51,7 @@ export class AtatContextValue {
    * developer sandbox environments are created (and is not, itself, a developer sandbox
    * environment).
    */
-  public static readonly ENVIRONMENT_ID = new AtatContextValue("atat:EnvironmentId", "Dev");
+  public static readonly ENVIRONMENT_ID = new AtatContextValue("atat:EnvironmentId", undefined);
 
   /**
    * The CIDR to use for the environment's VPC.

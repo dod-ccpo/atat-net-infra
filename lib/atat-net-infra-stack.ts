@@ -3,7 +3,7 @@ import { Construct } from "constructs";
 import * as cdk from "aws-cdk-lib";
 import * as pipelines from "aws-cdk-lib/pipelines";
 import { GovCloudCompatibilityAspect } from "./aspects/govcloud-compatibility";
-//import { NagSuppressions, NIST80053R4Checks } from "cdk-nag";
+import { NagSuppressions, NIST80053R4Checks, AwsSolutionsChecks } from 'cdk-nag';
 import { AtatContextValue } from "./context-values";
 import { NetInfraPipelineStage } from "./atat-net-infra-pipeline-stage"
 

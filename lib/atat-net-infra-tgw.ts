@@ -1,5 +1,3 @@
-
-
 import * as cdk from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
@@ -12,23 +10,22 @@ import * as path from 'path';
 import { NagSuppressions, NIST80053R4Checks } from 'cdk-nag';
 import { AtatProps } from './atat-net-infra-stack'
 
-export interface AtatWebApiStackProps extends cdk.StackProps {
-  environmentName: string;
-  // network?: AtatNetStack;
-  // isSandbox?: boolean;
-  // apiDomain?: ApiCertificateOptions;
-  // vpcFlowLogBucket?: AtatNetStack;
-}
+// export interface AtatProps extends cdk.StackProps {
+//   environmentName: string;
+//   // network?: AtatNetStack;
+//   // isSandbox?: boolean;
+//   // apiDomain?: ApiCertificateOptions;
+//   // vpcFlowLogBucket?: AtatNetStack;
+// }
 
 export class TransitGatewayStack extends cdk.Stack {
   public readonly transitGateway: ec2.CfnTransitGateway;
   public readonly internalRouteTable: ec2.CfnTransitGatewayRouteTable
   private readonly firewallRouteTable: ec2.CfnTransitGatewayRouteTable
 
-  constructor(scope: Construct, id: string, props?: cdk.StackProps & AtatWebApiStackProps) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps & AtatProps) {
     super(scope, id, props);
 
-    // const atatKey = environmentName
 
     this.transitGateway = new ec2.CfnTransitGateway(this, 'TransitGateway', {
       amazonSideAsn: 65224,
@@ -41,7 +38,7 @@ export class TransitGatewayStack extends cdk.Stack {
       tags: [
         {
           key: 'Name',
-          value: `props.environmentName-Transit-Gateway`,
+          value: 'atat-tgw',
         },
       ],
     });
@@ -54,7 +51,7 @@ export class TransitGatewayStack extends cdk.Stack {
         tags: [
           {
             key: 'Name',
-            value: 'internal-tgw-rt',
+            value: 'atat-internal-tgw-rt',
           },
         ],
       }
@@ -68,7 +65,7 @@ export class TransitGatewayStack extends cdk.Stack {
         tags: [
           {
             key: 'Name',
-            value: 'firewall-tgw-rt',
+            value: 'atat-firewall-tgw-rt',
           },
         ],
       }

@@ -26,7 +26,6 @@ export class TransitGatewayStack extends cdk.Stack {
       defaultRouteTableAssociation: 'disable',
       defaultRouteTablePropagation: 'disable',
       dnsSupport: 'enable',
-      vpnEcmpSupport: 'vpnEcmpSupport',
 
       tags: [
         {

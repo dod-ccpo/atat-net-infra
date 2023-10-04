@@ -20,7 +20,7 @@ export class TransitGatewayStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps & AtatProps) {
     super(scope, id, props);
 
-    const atatKey = props?.environmentName
+    // const atatKey = props?.environmentName
 
     this.transitGateway = new ec2.CfnTransitGateway(this, 'TransitGateway', {
       amazonSideAsn: 65224,
@@ -33,7 +33,7 @@ export class TransitGatewayStack extends cdk.Stack {
       tags: [
         {
           key: 'Name',
-          value: `${atatKey}-Transit-Gateway`,
+          value: `${props?.environmentName}-Transit-Gateway`,
         },
       ],
     });

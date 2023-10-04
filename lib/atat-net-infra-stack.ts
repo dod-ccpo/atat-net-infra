@@ -11,6 +11,7 @@ export interface AtatProps {
   environmentName: string;
   vpcCidr?: string;
   notificationEmail?: string;
+  //apiDomain?: ApiCertificateOptions;
 }
 
 export interface AtatPipelineStackProps extends cdk.StackProps, AtatProps {
@@ -26,7 +27,7 @@ export class AtatPipelineStack extends cdk.Stack {
       AtatContextValue.ENVIRONMENT_ID.toCliArgument(props.environmentName),
       // AtatContextValue.VPC_CIDR.toCliArgument(props.vpcCidr),
       AtatContextValue.VERSION_CONTROL_BRANCH.toCliArgument(props.branch),
-      AtatContextValue.NOTIFICATION_EMAIL.toCliArgument(props.notificationEmail),
+      // AtatContextValue.NOTIFICATION_EMAIL.toCliArgument(props.notificationEmail),
     ];
 
     const pipeline = new pipelines.CodePipeline(this, "Pipeline", {
@@ -43,7 +44,7 @@ export class AtatPipelineStack extends cdk.Stack {
     pipeline.addStage(
       new NetInfraPipelineStage(this, props.environmentName, {
         // vpcCidr: props.vpcCidr,
-        // environmentName: props.environmentName,
+        //environmentName: props.environmentName,
         // notificationEmail: props.notificationEmail,
         env: {
           region: this.region,

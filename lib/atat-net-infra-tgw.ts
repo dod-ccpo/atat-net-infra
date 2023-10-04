@@ -10,14 +10,17 @@ import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as path from 'path';
 import { NagSuppressions, NIST80053R4Checks } from 'cdk-nag';
+import { AtatProps } from './atat-net-infra-stack'
 
 export class TransitGatewayStack extends cdk.Stack {
   public readonly transitGateway: ec2.CfnTransitGateway;
   public readonly internalRouteTable: ec2.CfnTransitGatewayRouteTable
   private readonly firewallRouteTable: ec2.CfnTransitGatewayRouteTable
 
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps & AtatProps) {
     super(scope, id, props);
+
+    // const atatKey = props?.environmentName
 
     this.transitGateway = new ec2.CfnTransitGateway(this, 'TransitGateway', {
       amazonSideAsn: 65224,
@@ -30,7 +33,7 @@ export class TransitGatewayStack extends cdk.Stack {
       tags: [
         {
           key: 'Name',
-          value: '${environmentName} + -Transit-Gateway',
+          value: `${props?.environmentName}-Transit-Gateway`,
         },
       ],
     });
@@ -77,28 +80,45 @@ export class TransitGatewayStack extends cdk.Stack {
 
     });
 
-    attachmentLambdaRole.addToPolicy(
-      new iam.PolicyStatement({
-        actions: [
-          'ec2:AssociateTransitGatewayRouteTable',
-          'ec2:DescribeTransitGatewayAttachments',
-          'ec2:DisassociateTransitGatewayRouteTable',
-          'ec2:EnableTransitGatewayRouteTablePropagation',
-        ],
-        effect: iam.Effect.ALLOW,
-        resources: ['*'],
-      }),
-    );
+    // Create an inline policy for the IAM role
+    const inlinePolicy = new iam.Policy(this, 'attachmentLambdaInlinePolicy', {
+      statements: [
+        new iam.PolicyStatement({
+          actions: [
+                  'ec2:AssociateTransitGatewayRouteTable',
+                  'ec2:DescribeTransitGatewayAttachments',
+                  'ec2:DisassociateTransitGatewayRouteTable',
+                  'ec2:EnableTransitGatewayRouteTablePropagation',
+                ],
+          effect: iam.Effect.ALLOW,
+          resources: ['*'],
+        }),
+      ],
+    });
+    // Attach the inline policy to the IAM role
+    attachmentLambdaRole.attachInlinePolicy(inlinePolicy);
 
-    // NagSuppressions.addResourceSuppressions(
-    //   attachmentLambdaRole, [
-    //   {
-    //     id: "NIST.800.53.R4-IAMNoInlinePolicy",
-    //     reason: "Inline policy holds no security threat",
-    //     appliesTo: ['Resource::iam:aws-us-gov::*']
-    //   },
-    //   true
-    // ]);
+    // attachmentLambdaRole.addToPolicy(
+    //   new iam.PolicyStatement({
+    //     actions: [
+    //       'ec2:AssociateTransitGatewayRouteTable',
+    //       'ec2:DescribeTransitGatewayAttachments',
+    //       'ec2:DisassociateTransitGatewayRouteTable',
+    //       'ec2:EnableTransitGatewayRouteTablePropagation',
+    //     ],
+    //     effect: iam.Effect.ALLOW,
+    //     resources: ['*'],
+    //   }),
+    // );
+
+    NagSuppressions.addResourceSuppressions(
+      inlinePolicy, [
+      {
+        id: "NIST.800.53.R4-IAMNoInlinePolicy",
+        reason: "Inline policy holds no security threat",
+      },
+    ]);
+
 
     const tgwRouteLambda = new NodejsFunction(this, 'TGWAttachmentFunction', {
       entry: path.join(__dirname, 'lambda/attachment/index.ts'),

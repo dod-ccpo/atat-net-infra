@@ -38,6 +38,7 @@ export class AtatPipelineStack extends cdk.Stack {
         }),
         commands: ["npm ci", "npm run build", "npm run -- cdk synth " + synthParams.join(" ")],
       }),
+      dockerEnabledForSynth: true,
     });
     pipeline.addStage(
       new NetInfraPipelineStage(this, props.environmentName, {

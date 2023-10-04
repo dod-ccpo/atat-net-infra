@@ -8,14 +8,14 @@ import { NagSuppressions, NIST80053R4Checks, AwsSolutionsChecks } from 'cdk-nag'
 // import { NagSuppressions, NIST80053R4Checks } from "cdk-nag";
 
 
-import { AtatNetS3Stack } from './atat-net-s3';
+import { TransitGatewayStack } from './atat-net-infra-tgw';
 
 export class NetInfraPipelineStage extends cdk.Stage {
   constructor(scope: Construct, id: string, props?: cdk.StageProps) {
     super(scope, id, props);
 
-    const mys3 = new AtatNetS3Stack(this, 's3' );
-    cdk.Aspects.of(mys3).add(new NIST80053R4Checks({ verbose: true }));
+    const atatTGW = new TransitGatewayStack(this, 'transit-gateway' );
+    // cdk.Aspects.of(mys3).add(new NIST80053R4Checks({ verbose: true }));
 
   };
 }

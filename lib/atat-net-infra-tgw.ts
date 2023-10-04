@@ -127,7 +127,7 @@ export class TransitGatewayStack extends cdk.Stack {
       },
     };
 
-    new events.Rule(this, 'TGWAttachmentCreated', {
+    const tgwEventRule = new events.Rule(this, 'TGWAttachmentCreated', {
       eventPattern: eventPattern,
       targets: [new targets.LambdaFunction(tgwRouteLambda)],
     });

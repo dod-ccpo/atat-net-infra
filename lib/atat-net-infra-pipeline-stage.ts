@@ -5,14 +5,20 @@ import { GovCloudCompatibilityAspect } from "./aspects/govcloud-compatibility";
 import { AtatContextValue } from "./context-values";
 import { NagSuppressions, NIST80053R4Checks, AwsSolutionsChecks } from 'cdk-nag';
 // import { AtatNetInfraStack } from "../lib/atat-net-infra-stack";
-// import { NagSuppressions, NIST80053R4Checks } from "cdk-nag";
 import { TransitGatewayStack } from './atat-net-infra-tgw';
 
+export interface AtatProps extends cdk.StackProps {
+  orgARN: string;
+}
+
 export class NetInfraPipelineStage extends cdk.Stage {
-  constructor(scope: Construct, id: string, props?: cdk.StageProps) {
+  constructor(scope: Construct, id: string, props: cdk.StageProps & AtatProps) {
     super(scope, id, props);
 
-    const atatTgw = new TransitGatewayStack(this, 'AtatTransitGateway' );
+    const atatTgw = new TransitGatewayStack(this, 'AtatTransitGateway', {
+      orgARN: props.orgARN
+    });
+
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));
 
   };

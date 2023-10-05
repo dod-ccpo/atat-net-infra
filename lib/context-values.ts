@@ -26,6 +26,9 @@ export class AtatContextValue {
    */
   public static readonly GITHUB_PAT_NAME = new AtatContextValue("atat:GitHubPatName", "dev/github/pat");
 
+  // Org Id to pass into RAM
+  public static readonly ORG_ARN = new AtatContextValue("atat:OrgARN", undefined);
+
   /**
    * The GitHub repository that stores the ATAT/HOTH API infrastructure and application code.
    */

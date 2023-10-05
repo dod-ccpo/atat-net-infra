@@ -1,5 +1,4 @@
 import * as cdk from "aws-cdk-lib";
-import * as s3 from "aws-cdk-lib/aws-s3";
 import * as utils from "../lib/util";
 import { RemovalPolicySetter } from "../lib/aspects/removal-policy";
 import { GovCloudCompatibilityAspect } from "../lib/aspects/govcloud-compatibility";
@@ -11,6 +10,7 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
 
   const environmentParam = AtatContextValue.ENVIRONMENT_ID.resolve(app);
   // const vpcCidrParam = AtatContextValue.VPC_CIDR.resolve(app);
+  const orgArn = AtatContextValue.ORG_ARN.resolve(app);
   const deployRegion = AtatContextValue.DEPLOY_REGION.resolve(app);
   const branchParam = AtatContextValue.VERSION_CONTROL_BRANCH.resolve(app);
 //   const environmentName = environmentParam;
@@ -24,6 +24,7 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
 
   const pipelineStack = new AtatPipelineStack(app, 'AtatInfraPipeline', {
     environmentName,
+    orgARN: orgArn,
     // vpcCidr: vpcCidrParam,
     repository: AtatContextValue.VERSION_CONTROL_REPO.resolve(app),
     branch: branchParam,

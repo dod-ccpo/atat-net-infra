@@ -8,22 +8,13 @@ import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as path from 'path';
 import { NagSuppressions, NIST80053R4Checks } from 'cdk-nag';
-import { AtatProps } from './atat-net-infra-stack'
-
-// export interface AtatProps extends cdk.StackProps {
-//   environmentName: string;
-//   // network?: AtatNetStack;
-//   // isSandbox?: boolean;
-//   // apiDomain?: ApiCertificateOptions;
-//   // vpcFlowLogBucket?: AtatNetStack;
-// }
 
 export class TransitGatewayStack extends cdk.Stack {
   public readonly transitGateway: ec2.CfnTransitGateway;
   public readonly internalRouteTable: ec2.CfnTransitGatewayRouteTable
   private readonly firewallRouteTable: ec2.CfnTransitGatewayRouteTable
 
-  constructor(scope: Construct, id: string, props?: cdk.StackProps & AtatProps) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
 
@@ -102,19 +93,6 @@ export class TransitGatewayStack extends cdk.Stack {
     });
     // Attach the inline policy to the IAM role
     attachmentLambdaRole.attachInlinePolicy(inlinePolicy);
-
-    // attachmentLambdaRole.addToPolicy(
-    //   new iam.PolicyStatement({
-    //     actions: [
-    //       'ec2:AssociateTransitGatewayRouteTable',
-    //       'ec2:DescribeTransitGatewayAttachments',
-    //       'ec2:DisassociateTransitGatewayRouteTable',
-    //       'ec2:EnableTransitGatewayRouteTablePropagation',
-    //     ],
-    //     effect: iam.Effect.ALLOW,
-    //     resources: ['*'],
-    //   }),
-    // );
 
     NagSuppressions.addResourceSuppressions(
       inlinePolicy, [

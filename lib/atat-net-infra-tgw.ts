@@ -4,6 +4,8 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
+import * as ram  from 'aws-cdk-lib';
+import * as ssm from 'aws-cdk-lib/aws-ssm'
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as path from 'path';
@@ -61,6 +63,26 @@ export class TransitGatewayStack extends cdk.Stack {
         ],
       }
     );
+
+    // Retrieve the ARN of the principal from the SSM parameter 
+    const principalArnPrameterName = '/cdk/RamShare/OrgArn'
+    const principalArn = ssm.StringParameter.valueFromLookup(this, principalArnPrameterName)
+
+    // RAM Share to Dev Org 
+    const resourceShare = new ram.CfnResourceShare(this, 'MyCfnResourceShare', {
+      name: 'Infra-Tgw',
+      allowExternalPrincipals: false,
+      principals: [principalArn],
+      resourceArns: [this.transitGateway.attrArn],
+    });
+
+    // Associate RAM share with the TGW
+    const resourceShareAssociation = new ram.CfnResourceShareAssociation(this, 'ResourceShareAssociation', {
+      resourceShareArn: resourceShare.attrArn,
+      resourceArns: [
+        this.transitGateway.attrArn
+      ]
+    })
 
     this.createEventHandling();
   }

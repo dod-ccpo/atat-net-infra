@@ -22,7 +22,7 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
       }
       const environmentName = utils.normalizeEnvironmentName(environmentParam);
 
-  const pipelineStack = new AtatPipelineStack(app, "AtatEnvironmentPipeline", {
+  const pipelineStack = new AtatPipelineStack(app, 'AtatInfraPipeline', {
     environmentName,
     // vpcCidr: vpcCidrParam,
     repository: AtatContextValue.VERSION_CONTROL_REPO.resolve(app),

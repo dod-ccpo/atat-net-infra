@@ -11,16 +11,16 @@ import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { NagSuppressions, NIST80053R4Checks } from 'cdk-nag';
 
-export interface AtatProps extends cdk.StackProps {
-  orgARN: string;
-}
+// export interface AtatProps extends cdk.StackProps {
+//   orgARN: string;
+// }
 
 export class TransitGatewayStack extends cdk.Stack {
   public readonly transitGateway: ec2.CfnTransitGateway;
   public readonly internalRouteTable: ec2.CfnTransitGatewayRouteTable
   private readonly firewallRouteTable: ec2.CfnTransitGatewayRouteTable
 
-  constructor(scope: Construct, id: string, props: AtatProps) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
 
@@ -72,14 +72,14 @@ export class TransitGatewayStack extends cdk.Stack {
     const transitGatewayArn = `arn:aws-us-gov:ec2:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:transit-gateway/${this.transitGateway.attrId}`;
 
     // Retrieve the ARN of the principal from the SSM parameter 
-    // const principalArnPrameterName = '/cdk/RamShare/OrgArn'
-    // const principalArn = ssm.StringParameter.valueFromLookup(this, principalArnPrameterName)
+    const principalArnPrameterName = '/cdk/RamShare/OrgArn'
+    const principalArn = ssm.StringParameter.valueFromLookup(this, principalArnPrameterName)
 
     // RAM Share to Dev Org 
     const cfnResourceShare  = new ram.CfnResourceShare(this, 'TgwResourceShare', {
       name: 'Infra-Tgw',
       allowExternalPrincipals: false,
-      principals: [props.orgARN],
+      principals: [principalArn],
       resourceArns: [transitGatewayArn],
     });
 

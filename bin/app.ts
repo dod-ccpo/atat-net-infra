@@ -24,14 +24,15 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
 
   const pipelineStack = new AtatPipelineStack(app, 'AtatInfraPipeline', {
     environmentName,
-    orgARN: orgArn,
+    // orgARN: orgArn,
     // vpcCidr: vpcCidrParam,
     repository: AtatContextValue.VERSION_CONTROL_REPO.resolve(app),
     branch: branchParam,
     githubPatName: AtatContextValue.GITHUB_PAT_NAME.resolve(app),
     notificationEmail: environmentName,
     env: {
-      region: deployRegion,
+      region: process.env.CDK_DEFAULT_REGION,//deployRegion,
+      account: process.env.CDK_DEFAULT_ACCOUNT,
     },
   });
 return app;

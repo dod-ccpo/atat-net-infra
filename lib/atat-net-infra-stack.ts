@@ -32,10 +32,6 @@ export class AtatPipelineStack extends cdk.Stack {
       // AtatContextValue.NOTIFICATION_EMAIL.toCliArgument(props.notificationEmail),
     ];
 
-    // Retrieve the ARN of the principal from the SSM parameter 
-    const principalArnPrameterName = '/cdk/RamShare/OrgArn'
-    const principalArn = ssm.StringParameter.valueFromLookup(this, principalArnPrameterName)
-
     const pipeline = new pipelines.CodePipeline(this, "Pipeline", {
       synth: new pipelines.ShellStep("Synth", {
         input: pipelines.CodePipelineSource.gitHub(props.repository, props.branch, {

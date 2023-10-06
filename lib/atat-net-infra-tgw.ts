@@ -22,7 +22,7 @@ export class TransitGatewayStack extends cdk.Stack {
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-    this.templateOptions.description = "Creates the necessary networking infrastructure for the ATAT application";
+    this.templateOptions.description = "Creates the necessary networking infrastructure for the ATAT transit environment";
 
     this.transitGateway = new ec2.CfnTransitGateway(this, 'TransitGateway', {
       amazonSideAsn: 65224,
@@ -82,14 +82,6 @@ export class TransitGatewayStack extends cdk.Stack {
       principals: [principalArn],
       resourceArns: [transitGatewayArn],
     });
-
-    // Associate RAM share with the TGW
-    // const resourceShareAssociation = new ram.CfnResourceShareResourceAssociation(this, 'TgwResourceShareAssociation', {
-    //   resourceShareArn: cfnResourceShare.attrArn,
-    //   resourceArns: [
-    //     transitGatewayArn
-    //   ]
-    // })
 
     this.createEventHandling();
   }

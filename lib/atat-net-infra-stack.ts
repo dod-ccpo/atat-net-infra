@@ -25,6 +25,8 @@ export interface AtatPipelineStackProps extends cdk.StackProps, AtatProps {
 export class AtatPipelineStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: AtatPipelineStackProps) {
     super(scope, id, props);
+    this.templateOptions.description = "Creates the necessary infrastructure pipeline for ATAT transit environment";
+
     const synthParams = [
       AtatContextValue.ENVIRONMENT_ID.toCliArgument(props.environmentName),
       // AtatContextValue.VPC_CIDR.toCliArgument(props.vpcCidr),

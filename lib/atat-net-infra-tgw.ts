@@ -22,7 +22,7 @@ export class TransitGatewayStack extends cdk.Stack {
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-
+    this.templateOptions.description = "Creates the necessary networking infrastructure for the ATAT application";
 
     this.transitGateway = new ec2.CfnTransitGateway(this, 'TransitGateway', {
       amazonSideAsn: 65224,

@@ -66,7 +66,7 @@ export class FirewallVpcStack extends cdk.Stack {
             let attempt = 0;
             
             do {
-                subnetCidrBlock = `10.${i}.0.0/28`;
+                subnetCidrBlock = `10.10.${i}.0/28`;
                 attempt++;
             } while (existingSubnets.includes(subnetCidrBlock));
             

@@ -36,16 +36,13 @@ export class FirewallVpcStack extends cdk.Stack {
         ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
         maxAzs: 2,
         natGateways: 2,
-        subnetConfiguration: [{
-            cidrMask: 28,
-            name: 'Public',
-            subnetType: ec2.SubnetType.PUBLIC,
-          },
-          {
-            cidrMask: 28,
-            name: 'Transit',
-            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-          },
+        subnetConfiguration: [
+            
+        //   {
+        //     cidrMask: 28,
+        //     name: 'Transit',
+        //     subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+        //   },
           {
             cidrMask: 28,
             name: 'Private',
@@ -55,16 +52,17 @@ export class FirewallVpcStack extends cdk.Stack {
       });
 
       if (props.environmentName === 'Dev') {
-        const baseCidr = egressVpc.vpcCidrBlock;
-        const cidrMask = 28;
+        // const baseCidr = egressVpc.vpcCidrBlock;
+        // const cidrMask = 28;
         for (let i = 0; i < egressVpc.availabilityZones.length; i++) {
-            const subnetCidrBlock = `${baseCidr.slice(0, -3)}.${i * (1 << (32 - cidrMask))}`;
-            const albPublicSubnet = new ec2.PublicSubnet(this, `Alb${i}`, {
+            // const subnetCidrBlock = `${baseCidr.slice(0, -3)}.${i * (1 << (32 - cidrMask))}`;
+            const subnetCidrBlock = `${egressVpc.vpcCidrBlock}/${28}`;
+            
+            const albPublicSubnet = new ec2.PublicSubnet(this, `PublicSubnet${i}`, {
                 vpcId: egressVpc.vpcId,
                 availabilityZone: egressVpc.availabilityZones[i],
-                // subnetName: `Alb${i}`;
                 cidrBlock: subnetCidrBlock,
-            })
+            });
         };
       }
     };

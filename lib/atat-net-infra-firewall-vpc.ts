@@ -37,7 +37,7 @@ export class FirewallVpcStack extends cdk.Stack {
         const egressVpc = new ec2.Vpc(this, 'Egress VPC', {
         ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
         maxAzs: 2,
-                // // natGateways: 2,
+        natGateways: 2,
         subnetConfiguration: [
             {
             cidrMask: 28,
@@ -60,14 +60,7 @@ export class FirewallVpcStack extends cdk.Stack {
     } else { const egressVpc = new ec2.Vpc(this, 'Egress VPC', {
         ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
         maxAzs: 2,
-                // // natGateways: 2,
         subnetConfiguration: [
-            // {
-            // cidrMask: 28,
-            // name: 'Public',
-            // subnetType: ec2.SubnetType.PUBLIC,
-            // reserved: true
-            // },
             {
             cidrMask: 28,
             name: 'Transit',

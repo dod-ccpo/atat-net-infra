@@ -63,8 +63,8 @@ export class FirewallVpcStack extends cdk.Stack {
         while (existingSubnetCidrBlocks.includes(nextAvailableSubnetCidrBlock)) {
             // Generate the next subnet CIDR block by incrementing the third octet
             const subnetParts = nextAvailableSubnetCidrBlock.split('/');
-            const thirdOctet = parseInt(subnetParts[0].split('.')[2]);
-            nextAvailableSubnetCidrBlock = `10.0.${thirdOctet + i}.0/28`;
+            const thirdOctet = parseInt(subnetParts[0].split('.')[2]) +i;
+            nextAvailableSubnetCidrBlock = `10.10.${thirdOctet}.0/28`;
             i++;
         }
 
@@ -79,7 +79,7 @@ export class FirewallVpcStack extends cdk.Stack {
           
               // Increment the CIDR block for the next availability zone
               const subnetParts = nextAvailableSubnetCidrBlock.split('/');
-              const thirdOctet = parseInt(subnetParts[0].split('.')[2]);
+              const thirdOctet = parseInt(subnetParts[0].split('.')[2]) + 1;
               nextAvailableSubnetCidrBlock = `10.10.${thirdOctet + 1}.0/28`;
             }
           }

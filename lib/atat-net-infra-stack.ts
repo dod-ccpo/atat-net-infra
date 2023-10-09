@@ -49,7 +49,7 @@ export class AtatPipelineStack extends cdk.Stack {
     pipeline.addStage(
       new NetInfraPipelineStage(this, props.environmentName, {
         vpcCidr: props.vpcCidr,
-        // environmentName: props.environmentName,
+        environmentName: props.environmentName,
         // notificationEmail: props.notificationEmail,
         // orgARN:  props.orgARN,
         env: {

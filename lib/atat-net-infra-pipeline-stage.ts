@@ -10,6 +10,7 @@ import { FirewallVpcStack } from './atat-net-infra-firewall-vpc'
 
 export interface AtatProps extends cdk.StackProps {
   vpcCidr: string;
+  environmentName: string;
 }
 
 export class NetInfraPipelineStage extends cdk.Stage {
@@ -18,7 +19,8 @@ export class NetInfraPipelineStage extends cdk.Stage {
 
     const atatTgw = new TransitGatewayStack(this, 'AtatTransitGateway' );
     const atatFirewallVpc = new FirewallVpcStack(this, 'AtatFirewallVpc', {
-      vpcCidr: props.vpcCidr
+      vpcCidr: props.vpcCidr,
+      environmentName: props.environmentName
     } );
 
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));

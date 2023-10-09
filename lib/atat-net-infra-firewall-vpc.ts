@@ -32,55 +32,88 @@ export class FirewallVpcStack extends cdk.Stack {
 //
 // Transit - Egress/Firewall VPC
 //
-      const egressVpc = new ec2.Vpc(this, 'Egress VPC', {
+        
+        const egressVpc = new ec2.Vpc(this, 'Egress VPC', {
         ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
         maxAzs: 2,
         // natGateways: 2,
         subnetConfiguration: [
-        //     {
-        //     cidrMask: 28,
-        //     name: 'Public',
-        //     subnetType: ec2.SubnetType.PUBLIC,
-        //   },
-          {
+            {
             cidrMask: 28,
             name: 'Transit',
             subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-          },
-          {
+            },
+            {
             cidrMask: 28,
             name: 'Private',
             subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-          }
+            },
         ]
-      });
-      const existingSubnets: string[] = [];
+        });
+        const selectedSubnets = egressVpc.selectSubnets({
+        subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+        })
 
-      if (props.environmentName === 'Dev') {
-        // const baseCidr = egressVpc.vpcCidrBlock;
-        // const cidrMask = 28;
-        for (let i = 0; i < egressVpc.availabilityZones.length; i++) {
-            // const subnetCidrBlock = props.vpcCidr?.split("/")[0];
-            // const subnetCidrBlock = `${egressVpc.vpcCidrBlock}/${28}`;
-            let subnetCidrBlock;
-            let attempt = 0;
-            
-            do {
-                subnetCidrBlock = `10.10.${i}.0/28`;
-                attempt++;
-            } while (existingSubnets.includes(subnetCidrBlock));
-            
-            existingSubnets.push(subnetCidrBlock)
+        const existingSubnetCidrBlocks = selectedSubnets.subnets.map((subnet) => subnet.ipv4CidrBlock);
 
-            const albPublicSubnet = new ec2.PublicSubnet(this, `PublicSubnet${i}`, {
+        const baseCidr = egressVpc.vpcCidrBlock;
+        let nextAvailableSubnetCidrBlock = baseCidr;
+        let i = 0;
+
+        while (existingSubnetCidrBlocks.includes(nextAvailableSubnetCidrBlock)) {
+            // Generate the next subnet CIDR block by incrementing the third octet
+            const subnetParts = nextAvailableSubnetCidrBlock.split('/');
+            const thirdOctet = parseInt(subnetParts[0].split('.')[2]);
+            nextAvailableSubnetCidrBlock = `10.0.${thirdOctet + i}.0/28`;
+            i++;
+        }
+
+        if (props.environmentName === 'Dev') {
+            for (let j = 0; j < egressVpc.availabilityZones.length; j++) {
+              // Create a public subnet in each availability zone using the next available CIDR block
+              const albPublicSubnet = new ec2.PublicSubnet(this, `PublicSubnet${j}`, {
                 vpcId: egressVpc.vpcId,
-                availabilityZone: egressVpc.availabilityZones[i],
-                cidrBlock: subnetCidrBlock,
-            });
-        };
+                availabilityZone: egressVpc.availabilityZones[j],
+                cidrBlock: nextAvailableSubnetCidrBlock,
+              });
+          
+              // Increment the CIDR block for the next availability zone
+              const subnetParts = nextAvailableSubnetCidrBlock.split('/');
+              const thirdOctet = parseInt(subnetParts[0].split('.')[2]);
+              nextAvailableSubnetCidrBlock = `10.0.${thirdOctet + 1}.0/28`;
+            }
+          }
+
       }
-    };
-}
+    }
+
+    //   const existingSubnets: string[] = [];
+
+    //   if (props.environmentName === 'Dev') {
+    //     // const baseCidr = egressVpc.vpcCidrBlock;
+    //     // const cidrMask = 28;
+    //     for (let i = 0; i < egressVpc.availabilityZones.length; i++) {
+    //         // const subnetCidrBlock = props.vpcCidr?.split("/")[0];
+    //         // const subnetCidrBlock = `${egressVpc.vpcCidrBlock}/${28}`;
+    //         let subnetCidrBlock;
+    //         let attempt = 0;
+            
+    //         do {
+    //             subnetCidrBlock = `10.10.${i}.0/28`;
+    //             attempt++;
+    //         } while (existingSubnets.includes(subnetCidrBlock));
+            
+    //         existingSubnets.push(subnetCidrBlock)
+
+    //         const albPublicSubnet = new ec2.PublicSubnet(this, `PublicSubnet${i}`, {
+    //             vpcId: egressVpc.vpcId,
+    //             availabilityZone: egressVpc.availabilityZones[i],
+    //             cidrBlock: subnetCidrBlock,
+    //         });
+    //     };
+    //   }
+//     };
+// }
 
 
 // 

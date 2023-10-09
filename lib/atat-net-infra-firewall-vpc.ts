@@ -54,38 +54,45 @@ export class FirewallVpcStack extends cdk.Stack {
         subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
         })
 
-        const existingSubnetCidrBlocks = selectedSubnets.subnets.map((subnet) => subnet.ipv4CidrBlock);
-
+        const existingSubnetCidrBlocks = egressVpc.isolatedSubnets.map((subnet) => subnet.ipv4CidrBlock);
         const baseCidr = egressVpc.vpcCidrBlock;
         let nextAvailableSubnetCidrBlock = baseCidr;
-        let i = 0;
+        // let i = 0;
 
         while (existingSubnetCidrBlocks.includes(nextAvailableSubnetCidrBlock)) {
             // Generate the next subnet CIDR block by incrementing the third octet
             const subnetParts = nextAvailableSubnetCidrBlock.split('/');
             const thirdOctet = parseInt(subnetParts[0].split('.')[2]) + 1;
             nextAvailableSubnetCidrBlock = `10.10.${thirdOctet}.0/28`;
-            i++;
+            // i++;
         }
 
         if (props.environmentName === 'Dev') {
-            for (let j = 0; j < egressVpc.availabilityZones.length; j++) {
-              // Create a public subnet in each availability zone using the next available CIDR block
-              const albPublicSubnet = new ec2.PublicSubnet(this, `PublicSubnet${j}`, {
-                vpcId: egressVpc.vpcId,
-                availabilityZone: egressVpc.availabilityZones[j],
-                cidrBlock: nextAvailableSubnetCidrBlock,
-              });
-          
-              // Increment the CIDR block for the next availability zone
+
+            const additionalSubnets: string[] = [];
+            for (let i= 0; i < 2; i++) {
+                additionalSubnets.push(nextAvailableSubnetCidrBlock);
+                // Increment the CIDR block for the next availability zone
               const subnetParts = nextAvailableSubnetCidrBlock.split('/');
               const thirdOctet = parseInt(subnetParts[0].split('.')[2]) + 1;
               nextAvailableSubnetCidrBlock = `10.10.${thirdOctet + 1}.0/28`;
             }
-          }
 
-      }
+            for (let j = 0; j < egressVpc.availabilityZones.length; j++) {
+              if (j < additionalSubnets.length) {
+                // Create a public subnet in each availability zone using the next available CIDR block
+                const subnetCidrBlock = additionalSubnets[j];
+                const albPublicSubnet = new ec2.PublicSubnet(this, `PublicSubnet${j}`, {
+                    vpcId: egressVpc.vpcId,
+                    availabilityZone: egressVpc.availabilityZones[j],
+                    cidrBlock: subnetCidrBlock,
+                });
+              }
+
+            }
+        }
     }
+}
 
     //   const existingSubnets: string[] = [];
 

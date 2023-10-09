@@ -39,7 +39,7 @@ export class FirewallVpcStack extends cdk.Stack {
         });
 
         if (props.environmentName === 'Dev') {
-            for (let i = 0; i < 2; i++) {
+            for (let i = 0; i < egressVpc.availabilityZones.length; i++) {
               new ec2.Subnet(this, `PublicSubnet${i + 1}`, {
                 vpcId: egressVpc.vpcId,
                 availabilityZone: `us-gov-west-1${i + 1}`, // Adjust the AZ as needed
@@ -49,20 +49,20 @@ export class FirewallVpcStack extends cdk.Stack {
             }
       
           // Create private subnets
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < egressVpc.availabilityZones.length; i++) {
             new ec2.Subnet(this, `PrivateSubnet${i + 1}`, {
             vpcId: egressVpc.vpcId,
-            availabilityZone: `us-gov-west-1${i + 1}`, // Adjust the AZ as needed
+            availabilityZone: egressVpc.availabilityZones[i], // Adjust the AZ as needed
             cidrBlock: egressVpc.vpcCidrBlock,
             });
         }
         
 
             // Create transit subnets
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < egressVpc.availabilityZones.length; i++) {
             new ec2.Subnet(this, `TransitSubnet${i + 1}`, {
             vpcId: egressVpc.vpcId,
-            availabilityZone: `us-gov-west-1${i + 1}`, // Adjust the AZ as needed
+            availabilityZone: egressVpc.availabilityZones[i], // Adjust the AZ as needed
             cidrBlock: egressVpc.vpcCidrBlock,
             });
             }

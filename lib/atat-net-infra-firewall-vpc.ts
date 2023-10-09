@@ -75,7 +75,7 @@ export class FirewallVpcStack extends cdk.Stack {
             const albPublicSubnet = new ec2.PublicSubnet(this, `PublicSubnet${i}`, {
                 vpcId: egressVpc.vpcId,
                 availabilityZone: egressVpc.availabilityZones[i],
-                cidrBlock: `${subnetCidrBlock}/28`,
+                cidrBlock: subnetCidrBlock,
             });
         };
       }

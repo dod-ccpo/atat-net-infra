@@ -37,16 +37,20 @@ export class FirewallVpcStack extends cdk.Stack {
         maxAzs: 2,
         natGateways: 2,
         subnetConfiguration: [
-            
-        //   {
+        //     {
         //     cidrMask: 28,
-        //     name: 'Transit',
-        //     subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+        //     name: 'Public',
+        //     subnetType: ec2.SubnetType.PUBLIC,
         //   },
           {
             cidrMask: 28,
+            name: 'Transit',
+            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+          },
+          {
+            cidrMask: 28,
             name: 'Private',
-            subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
           }
         ]
       });

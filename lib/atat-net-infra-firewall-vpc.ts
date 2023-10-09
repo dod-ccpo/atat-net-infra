@@ -35,43 +35,42 @@ export class FirewallVpcStack extends cdk.Stack {
         
       if (props.environmentName === 'Dev') {
         const egressVpc = new ec2.Vpc(this, 'Egress VPC', {
-        ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
-        maxAzs: 2,
-        natGateways: 2,
-        subnetConfiguration: [
-            {
-            cidrMask: 28,
-            name: 'Public',
-            subnetType: ec2.SubnetType.PUBLIC,
-            reserved: true
-            },
-            {
-            cidrMask: 28,
-            name: 'Transit',
-            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-            },
-            {
-            cidrMask: 28,
-            name: 'Private',
-            subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-            },
-        ]
+            ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
+            maxAzs: 2,
+            natGateways: 2,
+            subnetConfiguration: [
+                {
+                cidrMask: 28,
+                name: 'Public',
+                subnetType: ec2.SubnetType.PUBLIC,
+                },
+                {
+                cidrMask: 28,
+                name: 'Transit',
+                subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+                },
+                {
+                cidrMask: 28,
+                name: 'Firewall',
+                subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+                },
+            ]
         });
     } else { const egressVpc = new ec2.Vpc(this, 'Egress VPC', {
-        ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
-        maxAzs: 2,
-        subnetConfiguration: [
-            {
-            cidrMask: 28,
-            name: 'Transit',
-            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-            },
-            {
-            cidrMask: 28,
-            name: 'Private',
-            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-            },
-        ]
+            ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
+            maxAzs: 2,
+            subnetConfiguration: [
+                {
+                cidrMask: 28,
+                name: 'Transit',
+                subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+                },
+                {
+                cidrMask: 28,
+                name: 'Firewall',
+                subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+                },
+            ]
         });
     }
 

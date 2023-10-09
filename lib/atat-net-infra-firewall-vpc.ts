@@ -42,7 +42,7 @@ export class FirewallVpcStack extends cdk.Stack {
             for (let i = 0; i < egressVpc.availabilityZones.length; i++) {
               new ec2.Subnet(this, `PublicSubnet${i + 1}`, {
                 vpcId: egressVpc.vpcId,
-                availabilityZone: `us-gov-west-1${i + 1}`, // Adjust the AZ as needed
+                availabilityZone:egressVpc.availabilityZones[i], // Adjust the AZ as needed
                 cidrBlock: egressVpc.vpcCidrBlock,
                 });
                 }

@@ -33,6 +33,7 @@ export class FirewallVpcStack extends cdk.Stack {
 // Transit - Egress/Firewall VPC
 //
         
+        if (props.environmentName === 'Dev') {
         const egressVpc = new ec2.Vpc(this, 'Egress VPC', {
         ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
         maxAzs: 2,
@@ -56,16 +57,49 @@ export class FirewallVpcStack extends cdk.Stack {
             },
         ]
         });
+    } else { const egressVpc = new ec2.Vpc(this, 'Egress VPC', {
+        ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
+        maxAzs: 2,
+                // // natGateways: 2,
+        subnetConfiguration: [
+            // {
+            // cidrMask: 28,
+            // name: 'Public',
+            // subnetType: ec2.SubnetType.PUBLIC,
+            // reserved: true
+            // },
+            {
+            cidrMask: 28,
+            name: 'Transit',
+            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+            },
+            {
+            cidrMask: 28,
+            name: 'Private',
+            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+            },
+        ]
+        });
+    }
 
-        if (props.environmentName === 'Dev') {
-            for (let i = 0; i < egressVpc.availabilityZones.length; i++) {
-              new ec2.Subnet(this, `PublicSubnet${i + 1}`, {
-                vpcId: egressVpc.vpcId,
-                availabilityZone:egressVpc.availabilityZones[i], // Adjust the AZ as needed
-                cidrBlock: egressVpc.vpcCidrBlock,
-                });
-                }
-            }
+        // if (props.environmentName === 'Dev') {
+        //     const subnetConfiguration: ec2.SubnetConfiguration = {
+        //         name: 'Public',
+        //         subnetType: ec2.SubnetType.PUBLIC,
+              
+        //         // the properties below are optional
+        //         cidrMask: 28,
+        //         // mapPublicIpOnLaunch: false,
+        //         // reserved: false,
+        //       };
+        //     // for (let i = 0; i < egressVpc.availabilityZones.length; i++) {
+        //     //   new ec2.Subnet(this, `PublicSubnet${i + 1}`, {
+        //     //     vpcId: egressVpc.vpcId,
+        //     //     availabilityZone:egressVpc.availabilityZones[i], // Adjust the AZ as needed
+        //     //     cidrBlock: egressVpc.vpcCidrBlock,
+        //     //     });
+        //     //     }
+        //     }
     }
 }
       

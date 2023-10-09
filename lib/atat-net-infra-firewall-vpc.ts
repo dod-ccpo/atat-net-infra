@@ -54,14 +54,24 @@ export class FirewallVpcStack extends cdk.Stack {
           }
         ]
       });
+      const existingSubnets: string[] = [];
 
       if (props.environmentName === 'Dev') {
         // const baseCidr = egressVpc.vpcCidrBlock;
         // const cidrMask = 28;
         for (let i = 0; i < egressVpc.availabilityZones.length; i++) {
-            const subnetCidrBlock = props.vpcCidr?.split("/")[0];
+            // const subnetCidrBlock = props.vpcCidr?.split("/")[0];
             // const subnetCidrBlock = `${egressVpc.vpcCidrBlock}/${28}`;
+            let subnetCidrBlock;
+            let attempt = 0;
             
+            do {
+                subnetCidrBlock = `${props.vpcCidr?.split('/')[0]}/${28 + attempt}`;
+                attempt++;
+            } while (existingSubnets.includes(subnetCidrBlock));
+            
+            existingSubnets.push(subnetCidrBlock)
+
             const albPublicSubnet = new ec2.PublicSubnet(this, `PublicSubnet${i}`, {
                 vpcId: egressVpc.vpcId,
                 availabilityZone: egressVpc.availabilityZones[i],

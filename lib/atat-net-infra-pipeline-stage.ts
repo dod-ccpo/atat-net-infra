@@ -6,16 +6,20 @@ import { AtatContextValue } from "./context-values";
 import { NagSuppressions, NIST80053R4Checks, AwsSolutionsChecks } from 'cdk-nag';
 // import { AtatNetInfraStack } from "../lib/atat-net-infra-stack";
 import { TransitGatewayStack } from './atat-net-infra-tgw';
+import { FirewallVpcStack } from './atat-net-infra-firewall-vpc'
 
-// export interface AtatProps extends cdk.StackProps {
-//   orgARN: string;
-// }
+export interface AtatProps extends cdk.StackProps {
+  vpcCidr: string;
+}
 
 export class NetInfraPipelineStage extends cdk.Stage {
-  constructor(scope: Construct, id: string, props?: cdk.StageProps) {
+  constructor(scope: Construct, id: string, props: cdk.StageProps & AtatProps ) {
     super(scope, id, props);
 
     const atatTgw = new TransitGatewayStack(this, 'AtatTransitGateway' );
+    const atatFirewallVpc = new FirewallVpcStack(this, 'AtatFirewallVpc', {
+      vpcCidr: props.vpcCidr
+    } );
 
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));
 

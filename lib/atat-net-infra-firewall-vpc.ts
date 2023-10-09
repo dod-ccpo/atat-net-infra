@@ -24,9 +24,10 @@ export interface AtatNetStackProps extends cdk.StackProps {
     environmentName?: string;
   }
 
-export class MyVpcStack extends cdk.Stack {
+export class FirewallVpcStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props: AtatNetStackProps) {
       super(scope, id, props);
+      this.templateOptions.description = "Creates the firewall VPC for inspection of the ATAT transit environment";
 
 //
 // Transit - Egress/Firewall VPC

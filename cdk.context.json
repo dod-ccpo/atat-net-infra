@@ -1,3 +1,8 @@
 {
-  "ssm:account=301961700437:parameterName=/cdk/RamShare/OrgArn:region=us-gov-west-1": "arn:aws-us-gov:organizations::238416677543:ou/o-spivo3okp9/ou-h33h-4gnkaxxt"
+  "ssm:account=301961700437:parameterName=/cdk/RamShare/OrgArn:region=us-gov-west-1": "arn:aws-us-gov:organizations::238416677543:ou/o-spivo3okp9/ou-h33h-4gnkaxxt",
+  "availability-zones:account=301961700437:region=us-gov-west-1": [
+    "us-gov-west-1a",
+    "us-gov-west-1b",
+    "us-gov-west-1c"
+  ]
 }

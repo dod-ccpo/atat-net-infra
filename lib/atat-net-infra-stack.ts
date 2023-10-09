@@ -10,7 +10,7 @@ import * as ssm from 'aws-cdk-lib/aws-ssm'
 
 export interface AtatProps {
   environmentName: string;
-  vpcCidr?: string;
+  vpcCidr: string;
   notificationEmail?: string;
   // orgARN: string;
   //apiDomain?: ApiCertificateOptions;
@@ -29,7 +29,7 @@ export class AtatPipelineStack extends cdk.Stack {
 
     const synthParams = [
       AtatContextValue.ENVIRONMENT_ID.toCliArgument(props.environmentName),
-      // AtatContextValue.VPC_CIDR.toCliArgument(props.vpcCidr),
+      AtatContextValue.VPC_CIDR.toCliArgument(props.vpcCidr),
       // AtatContextValue.ORG_ARN.toCliArgument(props.orgARN), 
       AtatContextValue.VERSION_CONTROL_BRANCH.toCliArgument(props.branch),
       // AtatContextValue.NOTIFICATION_EMAIL.toCliArgument(props.notificationEmail),
@@ -48,7 +48,7 @@ export class AtatPipelineStack extends cdk.Stack {
     });
     pipeline.addStage(
       new NetInfraPipelineStage(this, props.environmentName, {
-        // vpcCidr: props.vpcCidr,
+        vpcCidr: props.vpcCidr,
         // environmentName: props.environmentName,
         // notificationEmail: props.notificationEmail,
         // orgARN:  props.orgARN,

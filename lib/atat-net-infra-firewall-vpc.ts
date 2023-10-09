@@ -36,6 +36,25 @@ export class FirewallVpcStack extends cdk.Stack {
         const egressVpc = new ec2.Vpc(this, 'Egress VPC', {
         ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
         maxAzs: 2,
+                // // natGateways: 2,
+        subnetConfiguration: [
+            {
+            cidrMask: 28,
+            name: 'Public',
+            subnetType: ec2.SubnetType.PUBLIC,
+            reserved: true
+            },
+            {
+            cidrMask: 28,
+            name: 'Transit',
+            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+            },
+            {
+            cidrMask: 28,
+            name: 'Private',
+            subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+            },
+        ]
         });
 
         if (props.environmentName === 'Dev') {
@@ -47,40 +66,28 @@ export class FirewallVpcStack extends cdk.Stack {
                 });
                 }
             }
+    }
+}
       
-          // Create private subnets
-        for (let i = 0; i < egressVpc.availabilityZones.length; i++) {
-            new ec2.Subnet(this, `PrivateSubnet${i + 1}`, {
-            vpcId: egressVpc.vpcId,
-            availabilityZone: egressVpc.availabilityZones[i], // Adjust the AZ as needed
-            cidrBlock: egressVpc.vpcCidrBlock,
-            });
-        }
+        //   // Create private subnets
+        // for (let i = 0; i < egressVpc.availabilityZones.length; i++) {
+        //     new ec2.Subnet(this, `PrivateSubnet${i + 1}`, {
+        //     vpcId: egressVpc.vpcId,
+        //     availabilityZone: egressVpc.availabilityZones[i], // Adjust the AZ as needed
+        //     cidrBlock: egressVpc.vpcCidrBlock,
+        //     });
+        // }
         
 
-            // Create transit subnets
-        for (let i = 0; i < egressVpc.availabilityZones.length; i++) {
-            new ec2.Subnet(this, `TransitSubnet${i + 1}`, {
-            vpcId: egressVpc.vpcId,
-            availabilityZone: egressVpc.availabilityZones[i], // Adjust the AZ as needed
-            cidrBlock: egressVpc.vpcCidrBlock,
-            });
-            }
-        }
-        // // natGateways: 2,
-        // subnetConfiguration: [
-        //     {
-        //     cidrMask: 28,
-        //     name: 'Transit',
-        //     subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-        //     },
-        //     {
-        //     cidrMask: 28,
-        //     name: 'Private',
-        //     subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-        //     },
-        // ]
-        // });
+        //     // Create transit subnets
+        // for (let i = 0; i < egressVpc.availabilityZones.length; i++) {
+        //     new ec2.Subnet(this, `TransitSubnet${i + 1}`, {
+        //     vpcId: egressVpc.vpcId,
+        //     availabilityZone: egressVpc.availabilityZones[i], // Adjust the AZ as needed
+        //     cidrBlock: egressVpc.vpcCidrBlock,
+        //     });
+        //     }
+        // }
 
 
         // const selectedSubnets = egressVpc.selectSubnets({
@@ -124,7 +131,6 @@ export class FirewallVpcStack extends cdk.Stack {
 
         //     }
         // }
-}
 
     //   const existingSubnets: string[] = [];
 
@@ -254,4 +260,3 @@ export class FirewallVpcStack extends cdk.Stack {
         //     routeTableId: subnet.routeTable.routeTableId,
         //     vpcEndpointId: endpoint.getAttString('EndpointId'),
         //   });
-        // });

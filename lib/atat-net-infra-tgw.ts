@@ -4,20 +4,28 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
+import * as ram  from 'aws-cdk-lib/aws-ram';
+import * as ssm from 'aws-cdk-lib/aws-ssm'
+import * as path from 'path';
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
-import * as path from 'path';
 import { NagSuppressions, NIST80053R4Checks } from 'cdk-nag';
+
+
+export interface AtatProps extends cdk.StackProps {
+  orgARN: string;
+}
 
 export class TransitGatewayStack extends cdk.Stack {
   public readonly transitGateway: ec2.CfnTransitGateway;
   public readonly internalRouteTable: ec2.CfnTransitGatewayRouteTable
   private readonly firewallRouteTable: ec2.CfnTransitGatewayRouteTable
 
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: AtatProps) {
     super(scope, id, props);
+    this.templateOptions.description = "Creates the necessary networking infrastructure for the ATAT transit environment";
 
-
+    // Transit Gateway configuration
     this.transitGateway = new ec2.CfnTransitGateway(this, 'TransitGateway', {
       amazonSideAsn: 65224,
       autoAcceptSharedAttachments: 'enable',
@@ -34,6 +42,7 @@ export class TransitGatewayStack extends cdk.Stack {
       ],
     });
 
+    // Transit Gateway route table for spoke VPCs
     this.internalRouteTable = new ec2.CfnTransitGatewayRouteTable(
       this,
       'InternalRouteTable',
@@ -48,6 +57,7 @@ export class TransitGatewayStack extends cdk.Stack {
       }
     );
 
+    // Transit Gateway route table for firewall VPC
     this.firewallRouteTable = new ec2.CfnTransitGatewayRouteTable(
       this,
       'firewallRouteTable',
@@ -61,6 +71,20 @@ export class TransitGatewayStack extends cdk.Stack {
         ],
       }
     );
+
+    // Create ARN of TGW as it is only retrievable via .attrId from within the stack but we need the ARN
+    const transitGatewayArn = `arn:aws-us-gov:ec2:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:transit-gateway/${this.transitGateway.attrId}`;
+
+    // // Retrieve the ARN of the principal from props/context-values
+    const {orgARN } = props;
+    
+    // RAM Share to Dev Org 
+    const cfnResourceShare  = new ram.CfnResourceShare(this, 'TgwResourceShare', {
+      name: 'Infra-Tgw',
+      allowExternalPrincipals: false,
+      principals: [orgARN],
+      resourceArns: [transitGatewayArn],
+    });
 
     this.createEventHandling();
   }
@@ -102,7 +126,7 @@ export class TransitGatewayStack extends cdk.Stack {
       },
     ]);
 
-
+    // Lambda function as trigger to event for TGW route table association
     const tgwRouteLambda = new NodejsFunction(this, 'TGWAttachmentFunction', {
       entry: path.join(__dirname, 'lambda/attachment/index.ts'),
       runtime: lambda.Runtime.NODEJS_18_X,
@@ -122,7 +146,7 @@ export class TransitGatewayStack extends cdk.Stack {
       }
     ]);
   
-
+    // Evnet pattern and rule for when there is a CreateTransitGatewayVpcAttachment API call to trigger the lambda function automation
     const eventPattern = {
       source: ['aws.ec2'],
       detail: {

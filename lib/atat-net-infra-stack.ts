@@ -12,7 +12,7 @@ export interface AtatProps {
   environmentName: string;
   vpcCidr: string;
   notificationEmail?: string;
-  // orgARN: string;
+  orgARN: string;
   //apiDomain?: ApiCertificateOptions;
 }
 
@@ -51,7 +51,7 @@ export class AtatPipelineStack extends cdk.Stack {
         vpcCidr: props.vpcCidr,
         environmentName: props.environmentName,
         // notificationEmail: props.notificationEmail,
-        // orgARN:  props.orgARN,
+        orgARN:  props.orgARN,
         env: {
           region: this.region,
           account: this.account,

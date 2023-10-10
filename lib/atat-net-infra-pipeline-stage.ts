@@ -11,13 +11,16 @@ import { TransitGatewayStack } from './atat-net-infra-tgw';
 export interface AtatProps extends cdk.StackProps {
   vpcCidr: string;
   environmentName: string;
+  orgARN: string;
 }
 
 export class NetInfraPipelineStage extends cdk.Stage {
   constructor(scope: Construct, id: string, props: cdk.StageProps & AtatProps ) {
     super(scope, id, props);
 
-    const atatTgw = new TransitGatewayStack(this, 'AtatTransitGateway' );
+    const atatTgw = new TransitGatewayStack(this, 'AtatTransitGateway', {
+      orgARN: props.orgARN
+    });
     // const atatFirewallVpc = new FirewallVpcStack(this, 'AtatFirewallVpc', {
     //   vpcCidr: props.vpcCidr,
     //   environmentName: props.environmentName

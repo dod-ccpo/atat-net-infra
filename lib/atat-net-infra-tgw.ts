@@ -11,10 +11,6 @@ import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { NagSuppressions, NIST80053R4Checks } from 'cdk-nag';
 
-// export interface AtatProps extends cdk.StackProps {
-//   orgARN: string;
-// }
-
 export class TransitGatewayStack extends cdk.Stack {
   public readonly transitGateway: ec2.CfnTransitGateway;
   public readonly internalRouteTable: ec2.CfnTransitGatewayRouteTable
@@ -24,6 +20,7 @@ export class TransitGatewayStack extends cdk.Stack {
     super(scope, id, props);
     this.templateOptions.description = "Creates the necessary networking infrastructure for the ATAT transit environment";
 
+    // Transit Gateway configuration
     this.transitGateway = new ec2.CfnTransitGateway(this, 'TransitGateway', {
       amazonSideAsn: 65224,
       autoAcceptSharedAttachments: 'enable',
@@ -40,6 +37,7 @@ export class TransitGatewayStack extends cdk.Stack {
       ],
     });
 
+    // Transit Gateway route table for spoke VPCs
     this.internalRouteTable = new ec2.CfnTransitGatewayRouteTable(
       this,
       'InternalRouteTable',
@@ -54,6 +52,7 @@ export class TransitGatewayStack extends cdk.Stack {
       }
     );
 
+    // Transit Gateway route table for firewall VPC
     this.firewallRouteTable = new ec2.CfnTransitGatewayRouteTable(
       this,
       'firewallRouteTable',
@@ -123,7 +122,7 @@ export class TransitGatewayStack extends cdk.Stack {
       },
     ]);
 
-
+    // Lambda function as trigger to event for TGW route table association
     const tgwRouteLambda = new NodejsFunction(this, 'TGWAttachmentFunction', {
       entry: path.join(__dirname, 'lambda/attachment/index.ts'),
       runtime: lambda.Runtime.NODEJS_18_X,
@@ -143,7 +142,7 @@ export class TransitGatewayStack extends cdk.Stack {
       }
     ]);
   
-
+    // Evnet pattern and rule for when there is a CreateTransitGatewayVpcAttachment API call to trigger the lambda function automation
     const eventPattern = {
       source: ['aws.ec2'],
       detail: {

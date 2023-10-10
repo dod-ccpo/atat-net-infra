@@ -21,10 +21,10 @@ export class NetInfraPipelineStage extends cdk.Stage {
     const atatTgw = new TransitGatewayStack(this, 'AtatTransitGateway', {
       orgARN: props.orgARN
     });
-    const atatFirewallVpc = new FirewallVpcStack(this, 'AtatFirewallVpc', {
-      vpcCidr: props.vpcCidr,
-      environmentName: props.environmentName
-    } );
+    // const atatFirewallVpc = new FirewallVpcStack(this, 'AtatFirewallVpc', {
+    //   vpcCidr: props.vpcCidr,
+    //   environmentName: props.environmentName
+    // } );
 
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));
 

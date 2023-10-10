@@ -32,7 +32,7 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
     notificationEmail: environmentName,
     env: {
       region: deployRegion, //process.env.CDK_DEFAULT_REGION,//deployRegion,
-      account: this.account //process.env.CDK_DEFAULT_ACCOUNT,
+      account: process.env.CDK_DEPLOY_ACCOUNT //process.env.CDK_DEFAULT_ACCOUNT,
     },
   });
 return app;

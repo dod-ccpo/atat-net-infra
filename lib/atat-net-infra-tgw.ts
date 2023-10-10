@@ -75,11 +75,9 @@ export class TransitGatewayStack extends cdk.Stack {
     // Create ARN of TGW as it is only retrievable via .attrId from within the stack but we need the ARN
     const transitGatewayArn = `arn:aws-us-gov:ec2:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:transit-gateway/${this.transitGateway.attrId}`;
 
-    // // Retrieve the ARN of the principal from the SSM parameter 
-    // const principalArnPrameterName = '/cdk/RamShare/OrgArn'
-    // const principalArn = ssm.StringParameter.valueFromLookup(this, principalArnPrameterName)
-
+    // // Retrieve the ARN of the principal from props/context-values
     const {orgARN } = props;
+    
     // RAM Share to Dev Org 
     const cfnResourceShare  = new ram.CfnResourceShare(this, 'TgwResourceShare', {
       name: 'Infra-Tgw',

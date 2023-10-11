@@ -7,10 +7,11 @@ import { GovCloudCompatibilityAspect } from "./aspects/govcloud-compatibility";
 import { AtatContextValue } from "./context-values";
 import { NetInfraPipelineStage } from "./atat-net-infra-pipeline-stage"
 import * as ssm from 'aws-cdk-lib/aws-ssm'
+import { TransitGatewayStack } from './atat-net-infra-tgw';
 
 export interface AtatProps {
   environmentName: string;
-  vpcCidr: string;
+  vpcCidr?: string;
   notificationEmail?: string;
   orgARN: string;
   //apiDomain?: ApiCertificateOptions;
@@ -48,9 +49,8 @@ export class AtatPipelineStack extends cdk.Stack {
     });
     pipeline.addStage(
       new NetInfraPipelineStage(this, props.environmentName, {
-        vpcCidr: props.vpcCidr,
         environmentName: props.environmentName,
-        // notificationEmail: props.notificationEmail,
+        vpcCidr: props.vpcCidr,
         orgARN:  props.orgARN,
         env: {
           region: this.region,

@@ -14,7 +14,6 @@ describe("Validate creation of the pipeline stack", () => {
     stack = new AtatPipelineStack(app, "TestPipelineStack", {
       environmentName: "At0000",
       repository: "test/test",
-      vpcCidr: "7.5.3.2",
       orgARN: "X-OREFDSE",
       branch: TEST_BRANCH_NAME,
       githubPatName: "DOES_NOT_EXIST",

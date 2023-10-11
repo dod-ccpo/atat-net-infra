@@ -9,7 +9,7 @@ import { TransitGatewayStack } from './atat-net-infra-tgw';
 // import { FirewallVpcStack } from './atat-net-infra-firewall-vpc'
 
 export interface AtatProps extends cdk.StackProps {
-  vpcCidr: string;
+  vpcCidr?: string;
   environmentName: string;
   orgARN: string;
 }

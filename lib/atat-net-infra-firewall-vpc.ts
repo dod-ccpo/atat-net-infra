@@ -83,7 +83,7 @@ export class FirewallVpcStack extends cdk.Stack {
         
         const tgwSubnets = this.egressVpc.selectSubnets({
             subnetGroupName: 'Transit',
-          });
+          }).subnetIds;
 
         const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
             transitGatewayId: props.tgwId,

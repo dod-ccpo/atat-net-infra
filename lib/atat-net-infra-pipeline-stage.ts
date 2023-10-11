@@ -4,7 +4,6 @@ import { Construct } from "constructs";
 import { GovCloudCompatibilityAspect } from "./aspects/govcloud-compatibility";
 import { AtatContextValue } from "./context-values";
 import { NagSuppressions, NIST80053R4Checks, AwsSolutionsChecks } from 'cdk-nag';
-// import { AtatNetInfraStack } from "../lib/atat-net-infra-stack";
 import { TransitGatewayStack } from './atat-net-infra-tgw';
 import { FirewallVpcStack } from './atat-net-infra-firewall-vpc'
 

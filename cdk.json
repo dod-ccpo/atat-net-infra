@@ -27,8 +27,8 @@
       "aws-us-gov"
     ],
     "@aws-cdk/core:checkSecretUsage": true,
-    
-    "atat:GitHubPatName": "auth/github/pat",
+
+    "atat:GitHubPatName": "dev/github/pat",
     "atat:VersionControlRepo": "dod-ccpo/atat-net-infra"
   }
 }

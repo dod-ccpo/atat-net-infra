@@ -22,7 +22,8 @@ export class NetInfraPipelineStage extends cdk.Stage {
     });
     const atatFirewallVpc = new FirewallVpcStack(this, 'AtatFirewallVpc', {
       vpcCidr: props.vpcCidr,
-      environmentName: props.environmentName
+      environmentName: props.environmentName,
+      tgwId: atatTgw.tgwId
     } );
 
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));

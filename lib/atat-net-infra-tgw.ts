@@ -19,6 +19,7 @@ export class TransitGatewayStack extends cdk.Stack {
   public readonly transitGateway: ec2.CfnTransitGateway;
   public readonly internalRouteTable: ec2.CfnTransitGatewayRouteTable
   private readonly firewallRouteTable: ec2.CfnTransitGatewayRouteTable
+  public readonly tgwId: string
 
   constructor(scope: Construct, id: string, props: AtatProps) {
     super(scope, id, props);
@@ -40,6 +41,8 @@ export class TransitGatewayStack extends cdk.Stack {
         },
       ],
     });
+
+    this.tgwId = this.transitGateway.attrId
 
     // Transit Gateway route table for spoke VPCs
     this.internalRouteTable = new ec2.CfnTransitGatewayRouteTable(

@@ -87,7 +87,9 @@ export class FirewallVpcStack extends cdk.Stack {
 
         const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
             transitGatewayId: props.tgwId,
-            subnetIds: this.tgwSubnets.subnetIds,
+            subnetIds: this.egressVpc.selectSubnets({
+                subnetGroupName: 'Transit',
+              }).subnetIds,
             vpcId: this.egressVpc.vpcId,
             options: {
                 "ApplianceModeSupport": "enable",

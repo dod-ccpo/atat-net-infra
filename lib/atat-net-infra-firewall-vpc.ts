@@ -81,26 +81,26 @@ export class FirewallVpcStack extends cdk.Stack {
         this.egressVpc = egressVpc;
         }
         
-        const tgwSubnets = this.egressVpc.selectSubnets({
-            subnetGroupName: 'Transit',
-          }).subnetIds;
+        // const tgwSubnets = this.egressVpc.selectSubnets({
+        //     subnetGroupName: 'Transit',
+        //   }).subnetIds;
 
-        const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
-            transitGatewayId: props.tgwId,
-            subnetIds: this.egressVpc.selectSubnets({
-                subnetGroupName: 'Transit',
-              }).subnetIds,
-            vpcId: this.egressVpc.vpcId,
-            options: {
-                "ApplianceModeSupport": "enable",
-            },
-            tags: [
-                {
-                    key: 'routeTable',
-                    value: 'inspection',
-                },
-            ],
-            }
-        );
+        // const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
+        //     transitGatewayId: props.tgwId,
+        //     subnetIds: this.egressVpc.selectSubnets({
+        //         subnetGroupName: 'Transit',
+        //       }).subnetIds,
+        //     vpcId: this.egressVpc.vpcId,
+        //     options: {
+        //         "ApplianceModeSupport": "enable",
+        //     },
+        //     tags: [
+        //         {
+        //             key: 'routeTable',
+        //             value: 'firewall',
+        //         },
+        //     ],
+        //     }
+        // );
     }
 }

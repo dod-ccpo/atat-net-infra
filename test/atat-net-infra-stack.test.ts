@@ -9,6 +9,7 @@ describe("Validate creation of the pipeline stack", () => {
   let stack: AtatPipelineStack;
   let template: Template;
 
+  //stack test
   beforeEach(() => {
     app = new cdk.App();
     stack = new AtatPipelineStack(app, "TestPipelineStack", {

@@ -4,9 +4,8 @@ import { Construct } from "constructs";
 import { GovCloudCompatibilityAspect } from "./aspects/govcloud-compatibility";
 import { AtatContextValue } from "./context-values";
 import { NagSuppressions, NIST80053R4Checks, AwsSolutionsChecks } from 'cdk-nag';
-// import { AtatNetInfraStack } from "../lib/atat-net-infra-stack";
 import { TransitGatewayStack } from './atat-net-infra-tgw';
-// import { FirewallVpcStack } from './atat-net-infra-firewall-vpc'
+import { FirewallVpcStack } from './atat-net-infra-firewall-vpc'
 
 export interface AtatProps extends cdk.StackProps {
   vpcCidr: string;
@@ -21,10 +20,10 @@ export class NetInfraPipelineStage extends cdk.Stage {
     const atatTgw = new TransitGatewayStack(this, 'AtatTransitGateway', {
       orgARN: props.orgARN
     });
-    // const atatFirewallVpc = new FirewallVpcStack(this, 'AtatFirewallVpc', {
-    //   vpcCidr: props.vpcCidr,
-    //   environmentName: props.environmentName
-    // } );
+    const atatFirewallVpc = new FirewallVpcStack(this, 'AtatFirewallVpc', {
+      vpcCidr: props.vpcCidr,
+      environmentName: props.environmentName
+    } );
 
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));
 

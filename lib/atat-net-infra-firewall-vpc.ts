@@ -32,7 +32,14 @@ export class FirewallVpcStack extends cdk.Stack {
 //
 // Transit - Egress/Firewall VPC
 //
-        
+      /**
+     * Logic to create an addtional two public subnets in each AZ if environmentName is set to Dev
+     *
+     * 
+     * 
+     * 
+     */
+    
       if (props.environmentName === 'Dev') {
         const egressVpc = new ec2.Vpc(this, 'Egress VPC', {
             ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,

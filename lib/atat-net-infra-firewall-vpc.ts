@@ -22,24 +22,17 @@ export interface AtatNetStackProps extends cdk.StackProps {
     vpcCidr?: string;
     vpcFlowLogBucket?: string;
     environmentName?: string;
+    tgwId: string;
   }
-
 export class FirewallVpcStack extends cdk.Stack {
+    public readonly egressVpc: ec2.IVpc;
+    tgwSubnets: any;
     constructor(scope: Construct, id: string, props: AtatNetStackProps) {
       super(scope, id, props);
       this.templateOptions.description = "Creates the firewall VPC for inspection of the ATAT transit environment";
-
 //
 // Transit - Egress/Firewall VPC
 //
-      /**
-     * Logic to create an addtional two public subnets in each AZ if environmentName is set to Dev
-     *
-     * 
-     * 
-     * 
-     */
-    
       if (props.environmentName === 'Dev') {
         const egressVpc = new ec2.Vpc(this, 'Egress VPC', {
             ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
@@ -68,6 +61,7 @@ export class FirewallVpcStack extends cdk.Stack {
                 }
             ]
         });
+        this.egressVpc = egressVpc;
     } else { const egressVpc = new ec2.Vpc(this, 'Egress VPC', {
             ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
             maxAzs: 2,
@@ -84,8 +78,25 @@ export class FirewallVpcStack extends cdk.Stack {
                 },
             ]
         });
+        this.egressVpc = egressVpc;
         }
-
+        
+        const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
+            transitGatewayId: props.tgwId,
+            subnetIds: this.egressVpc.selectSubnets({
+                subnetGroupName: 'Transit',
+              }).subnetIds,
+            vpcId: this.egressVpc.vpcId,
+            options: {
+                "ApplianceModeSupport": "enable",
+            },
+            tags: [
+                {
+                    key: 'routeTable',
+                    value: 'firewall',
+                },
+            ],
+            }
+        );
     }
 }
-    

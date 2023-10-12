@@ -99,16 +99,48 @@ export class FirewallVpcStack extends cdk.Stack {
             }
         );
 
-        const logGroup = new logs.LogGroup(this, 'ATAT-VPC-Flow-Logs');
+        // const logGroup = new logs.LogGroup(this, 'ATAT-VPC-Flow-Logs');
 
-        const role = new iam.Role(this, 'ATAT-VPC-FL-Role', {
-        assumedBy: new iam.ServicePrincipal('vpc-flow-logs.amazonaws.com')
-        });
+        // const role = new iam.Role(this, 'ATAT-VPC-FL-Role', {
+        // assumedBy: new iam.ServicePrincipal('vpc-flow-logs.amazonaws.com')
+        // });
 
-        new ec2.FlowLog(this, 'FlowLog', {
-        resourceType: ec2.FlowLogResourceType.fromVpc(this.egressVpc),
-        destination: ec2.FlowLogDestination.toCloudWatchLogs(logGroup, role)
-        });
+        // new ec2.FlowLog(this, 'FlowLog', {
+        // resourceType: ec2.FlowLogResourceType.fromVpc(this.egressVpc),
+        // destination: ec2.FlowLogDestination.toCloudWatchLogs(logGroup, role)
+        // });
+
+        this.egressVpc.addFlowLog("AllFlowLogs", {
+            logFormat: [
+              ec2.LogFormat.VERSION,
+              ec2.LogFormat.custom("${vpc-id}"),
+              ec2.LogFormat.custom("${subnet-id}"),
+              ec2.LogFormat.custom("${instance-id}"),
+              ec2.LogFormat.custom("${interface-id}"),
+              ec2.LogFormat.custom("${account-id}"),
+              ec2.LogFormat.custom("${type}"),
+              ec2.LogFormat.SRC_ADDR,
+              ec2.LogFormat.DST_ADDR,
+              ec2.LogFormat.SRC_PORT,
+              ec2.LogFormat.DST_PORT,
+              ec2.LogFormat.PKT_SRC_ADDR,
+              ec2.LogFormat.PKT_DST_ADDR,
+              ec2.LogFormat.PROTOCOL,
+              ec2.LogFormat.BYTES,
+              ec2.LogFormat.PACKETS,
+              ec2.LogFormat.custom("${start}"),
+              ec2.LogFormat.custom("${end}"),
+              ec2.LogFormat.custom("${action}"),
+              ec2.LogFormat.custom("${tcp-flags}"),
+              ec2.LogFormat.custom("${log-status}"),
+              /* eslint-enable no-template-curly-in-string */
+            ],
+            destination: ec2.FlowLogDestination.toCloudWatchLogs(
+              new logs.LogGroup(this, "vpc-cssp-cwl-logs", {
+                retention: logs.RetentionDays.INFINITE,
+              })
+            ),
+          });
         
     }
 }

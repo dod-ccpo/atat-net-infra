@@ -98,5 +98,17 @@ export class FirewallVpcStack extends cdk.Stack {
             ],
             }
         );
+
+        const logGroup = new logs.LogGroup(this, 'ATAT-VPC-Flow-Logs');
+
+        const role = new iam.Role(this, 'ATAT-VPC-FL-Role', {
+        assumedBy: new iam.ServicePrincipal('vpc-flow-logs.amazonaws.com')
+        });
+
+        new ec2.FlowLog(this, 'FlowLog', {
+        resourceType: ec2.FlowLogResourceType.fromVpc(this.egressVpc),
+        destination: ec2.FlowLogDestination.toCloudWatchLogs(logGroup, role)
+        });
+        
     }
 }

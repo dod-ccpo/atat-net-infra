@@ -25,16 +25,16 @@ export interface AtatNetStackProps extends cdk.StackProps {
     tgwId: string;
   }
 export class FirewallVpcStack extends cdk.Stack {
-    public readonly egressVpc: ec2.IVpc;
+    public readonly firewallVpc: ec2.IVpc;
     tgwSubnets: any;
     constructor(scope: Construct, id: string, props: AtatNetStackProps) {
       super(scope, id, props);
       this.templateOptions.description = "Creates the firewall VPC for inspection of the ATAT transit environment";
 //
-// Transit - Egress/Firewall VPC
+// Transit - Firewall VPC
 //
       if (props.environmentName === 'Dev') {
-        const egressVpc = new ec2.Vpc(this, 'Egress VPC', {
+        const firewallVpc = new ec2.Vpc(this, 'Firewall-Vpc', {
             ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
             maxAzs: 2,
             natGateways: 2,
@@ -61,8 +61,8 @@ export class FirewallVpcStack extends cdk.Stack {
                 }
             ]
         });
-        this.egressVpc = egressVpc;
-    } else { const egressVpc = new ec2.Vpc(this, 'Egress VPC', {
+        this.firewallVpc = firewallVpc;
+    } else { const firewallVpc = new ec2.Vpc(this, 'Firewall-Vpc', {
             ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
             maxAzs: 2,
             subnetConfiguration: [
@@ -78,15 +78,15 @@ export class FirewallVpcStack extends cdk.Stack {
                 },
             ]
         });
-        this.egressVpc = egressVpc;
+        this.firewallVpc = firewallVpc;
         }
         
         const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
             transitGatewayId: props.tgwId,
-            subnetIds: this.egressVpc.selectSubnets({
+            subnetIds: this.firewallVpc.selectSubnets({
                 subnetGroupName: 'Transit',
               }).subnetIds,
-            vpcId: this.egressVpc.vpcId,
+            vpcId: this.firewallVpc.vpcId,
             options: {
                 "ApplianceModeSupport": "enable",
             },

@@ -31,14 +31,20 @@ export const handler = async (event: any) => {
         throw new Error("required attribute missing");
     };
 
-    if (vpcType != "internal" && vpcType != "firewall") {
-        throw new Error("vpc type is not internal or firewall")
-    }
+    // if (vpcType != "internal" && vpcType != "firewall") {
+    //     throw new Error("vpc type is not internal or firewall")
+    // }
+
+    // let associationRouteTableID = undefined;
+    // if (vpcType == "internal" && process.env.internalRouteTableID) {
+    //     associationRouteTableID = process.env.intenalRouteTableID
+    // } else associationRouteTableID = process.env.firewallRouteTableID
 
     let associationRouteTableID = undefined;
-    if (vpcType == "internal" && process.env.internalRouteTableID) {
-        associationRouteTableID = process.env.intenalRouteTableID
-    } else associationRouteTableID = process.env.firewallRouteTableID
+    if (vpcType == "firewall" && process.env.firewallRouteTableID) {
+        associationRouteTableID = process.env.firewallRouteTableID
+    } else associationRouteTableID = process.env.internalRouteTableID
+
 
     const describeAttachmentCommand = new DescribeTransitGatewayAttachmentsCommand({
         TransitGatewayAttachmentIds: [attachmentID]

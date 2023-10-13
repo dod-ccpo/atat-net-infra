@@ -6,6 +6,7 @@ import { AtatContextValue } from "./context-values";
 import { NagSuppressions, NIST80053R4Checks, AwsSolutionsChecks } from 'cdk-nag';
 import { TransitGatewayStack } from './atat-net-infra-tgw';
 import { FirewallVpcStack } from './atat-net-infra-firewall-vpc'
+import { NetworkFirewallRules } from './atat-net-infra-firewall-policy'
 
 export interface AtatProps extends cdk.StackProps {
   vpcCidr: string;
@@ -25,6 +26,7 @@ export class NetInfraPipelineStage extends cdk.Stage {
       environmentName: props.environmentName,
       tgwId: atatTgw.tgwId
     } );
+    const firewallPolicyStack = new NetworkFirewallRules(this, 'NetworkFirewallPolicyStack');
 
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));
 

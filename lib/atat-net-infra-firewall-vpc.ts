@@ -9,7 +9,7 @@ import {  aws_networkfirewall as networkfirewall } from 'aws-cdk-lib';
 import { CustomResource, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { vpc } from 'cdk-nag/lib/rules';
 import { SubnetCidrBlockStateCode, VpcCidrBlockStateCode } from '@aws-sdk/client-ec2';
-// import { NetworkFirewallRules } from './network-firewall-policy-stack'
+import { NetworkFirewallRules } from './atat-net-infra-firewall-policy'
 
 export interface AtatNetStackProps extends cdk.StackProps {
     /**
@@ -98,5 +98,10 @@ export class FirewallVpcStack extends cdk.Stack {
             ],
             }
         );
+
+        const firewallRules = new NetworkFirewallRules(
+            this,
+            'NetworkFirewallRules'
+          );
     }
 }

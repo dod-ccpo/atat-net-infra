@@ -99,9 +99,9 @@ export class FirewallVpcStack extends cdk.Stack {
             }
         );
 
-        const firewallRules = new NetworkFirewallRules(
-            this,
-            'NetworkFirewallRules'
-          );
+        // const firewallRules = new NetworkFirewallRules(
+        //     this,
+        //     'NetworkFirewallRules'
+        //   );
     }
 }

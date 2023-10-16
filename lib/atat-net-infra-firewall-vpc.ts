@@ -36,6 +36,7 @@ export class FirewallVpcStack extends cdk.Stack {
       if (props.environmentName === 'Dev') {
         const firewallVpc = new ec2.Vpc(this, 'Firewall-Vpc', {
             ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
+            restrictDefaultSecurityGroup: true,
             maxAzs: 2,
             natGateways: 2,
             subnetConfiguration: [
@@ -64,6 +65,7 @@ export class FirewallVpcStack extends cdk.Stack {
         this.firewallVpc = firewallVpc;
     } else { const firewallVpc = new ec2.Vpc(this, 'Firewall-Vpc', {
             ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
+            restrictDefaultSecurityGroup: true,
             maxAzs: 2,
             subnetConfiguration: [
                 {

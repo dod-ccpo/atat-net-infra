@@ -3,7 +3,7 @@ import { Construct } from 'constructs';
 import * as networkfirewall from 'aws-cdk-lib/aws-networkfirewall';
 
 export class NetworkFirewallRules extends cdk.Stack {
-  public readonly fwPolicy: networkfirewall.CfnFirewallPolicy;
+  public readonly fwPolicy: string;
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
     this.templateOptions.description = "Creates the AWS Network Firewall Policy, Rule Group and Rules for ATAT AWS Network Firewall";
@@ -152,6 +152,6 @@ export class NetworkFirewallRules extends cdk.Stack {
       firewallPolicyName: 'AtatFwPolicy',
     });
 
-    this.fwPolicy = fwPolicy;
+    this.fwPolicy = fwPolicy.attrFirewallPolicyArn;
   }
 }

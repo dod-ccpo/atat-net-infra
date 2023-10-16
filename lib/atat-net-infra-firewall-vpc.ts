@@ -10,6 +10,7 @@ import { CustomResource, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { vpc } from 'cdk-nag/lib/rules';
 import { SubnetCidrBlockStateCode, VpcCidrBlockStateCode } from '@aws-sdk/client-ec2';
 import { NetworkFirewallRules } from './atat-net-infra-firewall-policy'
+import { NagSuppressions, NIST80053R4Checks } from 'cdk-nag';
 
 export interface AtatNetStackProps extends cdk.StackProps {
     /**
@@ -82,6 +83,13 @@ export class FirewallVpcStack extends cdk.Stack {
         });
         this.firewallVpc = firewallVpc;
         }
+
+        NagSuppressions.addResourceSuppressions(this.firewallVpc, [
+            {
+              id: "NIST.800.53.R4-VPCFlowLogsEnabled",
+              reason: "adding vpc flow logs in separate feature/branch, hence this will be removed",
+            }
+          ]);
         
         const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
             transitGatewayId: props.tgwId,

@@ -114,12 +114,12 @@ export class FirewallVpcStack extends cdk.Stack {
 // Network Firewall Endpoints
 // 
   
-      const transitSubnets = this.firewallVpc.selectSubnets({
-        subnetGroupName: 'Transit',
+      const firewallSubnets = this.firewallVpc.selectSubnets({
+        subnetGroupName: 'Firewall',
       });
 
       let subnetList: networkfirewall.CfnFirewall.SubnetMappingProperty[] = [];
-      for (const subnet of transitSubnets.subnets) { // Iterate over individual subnets
+      for (const subnet of firewallSubnets.subnets) { // Iterate over individual subnets
           const subnetMappingProperty: networkfirewall.CfnFirewall.SubnetMappingProperty = {
               subnetId: subnet.subnetId,
           };

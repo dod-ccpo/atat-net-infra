@@ -26,9 +26,11 @@ export class NetInfraPipelineStage extends cdk.Stage {
       environmentName: props.environmentName,
       tgwId: atatTgw.tgwId
     } );
-    const firewallPolicyStack = new NetworkFirewallRules(this, 'NetworkFirewallPolicyStack');
+    const atatFirewallPolicyStack = new NetworkFirewallRules(this, 'NetworkFirewallPolicyStack');
 
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));
+    cdk.Aspects.of(atatFirewallVpc).add(new NIST80053R4Checks({ verbose: true }));
+    cdk.Aspects.of(atatFirewallPolicyStack).add(new NIST80053R4Checks({ verbose: true }));
 
   };
 }

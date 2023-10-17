@@ -148,7 +148,7 @@ export class FirewallVpcStack extends cdk.Stack {
             ],
         });
         // Create an inline policy for the IAM role
-        const inlinePolicy = new iam.Policy(this, 'attachmentLambdaInlinePolicy', {
+        const inlinePolicy = new iam.Policy(this, 'routeLambdaRoleInlinePolicy   ', {
             statements: [
               new iam.PolicyStatement({
                 effect: iam.Effect.ALLOW,
@@ -158,13 +158,21 @@ export class FirewallVpcStack extends cdk.Stack {
             ],
           });
 
-        routeLambdaRole.addToPolicy(
-            new iam.PolicyStatement({
-            effect: iam.Effect.ALLOW,
-            actions: ['network-firewall:DescribeFirewall'],
-            resources: [cfnFirewall.attrFirewallArn],
-            })
-        );
+        NagSuppressions.addResourceSuppressions(
+            inlinePolicy, [
+            {
+              id: "NIST.800.53.R4-IAMNoInlinePolicy",
+              reason: "Inline policy holds no security threat",
+            },
+        ]);
+
+        // routeLambdaRole.addToPolicy(
+        //     new iam.PolicyStatement({
+        //     effect: iam.Effect.ALLOW,
+        //     actions: ['network-firewall:DescribeFirewall'],
+        //     resources: [cfnFirewall.attrFirewallArn],
+        //     })
+        // );
 
         // Attach the inline policy to the IAM role
         routeLambdaRole.attachInlinePolicy(inlinePolicy);

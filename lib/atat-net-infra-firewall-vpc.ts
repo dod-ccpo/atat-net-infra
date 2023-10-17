@@ -147,6 +147,16 @@ export class FirewallVpcStack extends cdk.Stack {
             ),
             ],
         });
+        // Create an inline policy for the IAM role
+        const inlinePolicy = new iam.Policy(this, 'attachmentLambdaInlinePolicy', {
+            statements: [
+              new iam.PolicyStatement({
+                effect: iam.Effect.ALLOW,
+                actions: ['network-firewall:DescribeFirewall'],
+                resources: [cfnFirewall.attrFirewallArn],
+              }),
+            ],
+          });
 
         routeLambdaRole.addToPolicy(
             new iam.PolicyStatement({
@@ -156,6 +166,9 @@ export class FirewallVpcStack extends cdk.Stack {
             })
         );
 
+        // Attach the inline policy to the IAM role
+        routeLambdaRole.attachInlinePolicy(inlinePolicy);
+
         const customRouteLambda = new nodejs.NodejsFunction(this, 'endpoint', {
             description: 'Lambda function as Custom Resource to fetch Network Firewall endpoint IDs',
             entry: path.join(__dirname, 'lambda/firewall/net-firewall-custom-resource.ts'),
@@ -163,6 +176,13 @@ export class FirewallVpcStack extends cdk.Stack {
             role: routeLambdaRole,
             timeout: Duration.seconds(30),
         });
+
+        NagSuppressions.addResourceSuppressions(customRouteLambda, [
+            {
+              id: "NIST.800.53.R4-LambdaInsideVPC",
+              reason: "Testing lambda, will add VPC in the future",
+            }
+          ]);
 
         const provider = new cr.Provider(this, 'Provider', {
             onEventHandler: customRouteLambda,

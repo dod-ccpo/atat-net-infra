@@ -29,7 +29,7 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
     repository: AtatContextValue.VERSION_CONTROL_REPO.resolve(app),
     branch: branchParam,
     githubPatName: AtatContextValue.GITHUB_PAT_NAME.resolve(app),
-    notificationEmail: environmentName,
+    // notificationEmail: environmentName,
     env: {
       region: deployRegion, 
       // account: process.env.CDK_DEFAULT_ACCOUNT,

@@ -24,6 +24,7 @@ export interface AtatNetStackProps extends cdk.StackProps {
     vpcFlowLogBucket?: string;
     environmentName?: string;
     tgwId: string;
+    fwPolicy: string;
   }
 export class FirewallVpcStack extends cdk.Stack {
     public readonly firewallVpc: ec2.IVpc;
@@ -109,9 +110,27 @@ export class FirewallVpcStack extends cdk.Stack {
             }
         );
 
-        // const firewallRules = new NetworkFirewallRules(
-        //     this,
-        //     'NetworkFirewallRules'
-        //   );
+        // 
+// Network Firewall Endpoints
+// 
+  
+      const firewallSubnets = this.firewallVpc.selectSubnets({
+        subnetGroupName: 'Firewall',
+      });
+
+      let subnetList: networkfirewall.CfnFirewall.SubnetMappingProperty[] = [];
+      for (const subnet of firewallSubnets.subnets) { // Iterate over individual subnets
+          const subnetMappingProperty: networkfirewall.CfnFirewall.SubnetMappingProperty = {
+              subnetId: subnet.subnetId,
+          };
+          subnetList.push(subnetMappingProperty);
+      }
+      
+      const cfnFirewall = new networkfirewall.CfnFirewall(this, 'AtatNetFirewall', {
+          firewallName: 'AtatFirewall',
+          firewallPolicyArn: props.fwPolicy,
+          subnetMappings: subnetList,
+          vpcId: this.firewallVpc.vpcId,
+      });
     }
 }

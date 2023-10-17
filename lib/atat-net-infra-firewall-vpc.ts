@@ -214,6 +214,19 @@ export class FirewallVpcStack extends cdk.Stack {
                 },
                 }
             );
+
+        NagSuppressions.addResourceSuppressionsByPath(
+            this,
+            `/${this.node.path}/Provider/framework-onEvent/Resource`,
+            [
+                {
+                id: "NIST.800.53.R4-LambdaInsideVPC",
+                reason:
+                    "The AwsCustomResource type does not support being placed in a VPC. " +
+                    "This can only ever make limited-permissions calls that will appear in CloudTrail.",
+                },
+            ]
+            );
             
             // Create default route towards firewall endpoint from TGW subnets.
             new ec2.CfnRoute(this, `${subnetName}AnfRoute`, {

@@ -166,14 +166,6 @@ export class FirewallVpcStack extends cdk.Stack {
             },
         ]);
 
-        // routeLambdaRole.addToPolicy(
-        //     new iam.PolicyStatement({
-        //     effect: iam.Effect.ALLOW,
-        //     actions: ['network-firewall:DescribeFirewall'],
-        //     resources: [cfnFirewall.attrFirewallArn],
-        //     })
-        // );
-
         // Attach the inline policy to the IAM role
         routeLambdaRole.attachInlinePolicy(inlinePolicy);
 
@@ -226,7 +218,19 @@ export class FirewallVpcStack extends cdk.Stack {
                     "This can only ever make limited-permissions calls that will appear in CloudTrail.",
                 },
             ]
-            );
+        );
+
+        NagSuppressions.addResourceSuppressionsByPath(
+            this, 
+            `/${this.node.path}/Provider/framework-onEvent/ServiceRole/DefaultPolicy/Resource`,
+            [
+                {
+                id: "NIST.800.53.R4-IAMNoInlinePolicy",
+                reason: "Inline policy holds no security threat",
+                },
+        ]);
+
+        
             
             // Create default route towards firewall endpoint from TGW subnets.
             new ec2.CfnRoute(this, `${subnetName}AnfRoute`, {

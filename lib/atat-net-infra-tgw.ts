@@ -130,6 +130,7 @@ export class TransitGatewayStack extends cdk.Stack {
 
     // Lambda function as trigger to event for TGW route table association
     const tgwRouteLambda = new NodejsFunction(this, 'TGWAttachmentFunction', {
+      description: 'Lambda function as trigger to event for TGW route table association',
       entry: path.join(__dirname, 'lambda/attachment/index.ts'),
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: 'handler',

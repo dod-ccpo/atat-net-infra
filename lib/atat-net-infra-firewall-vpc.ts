@@ -186,7 +186,7 @@ export class FirewallVpcStack extends cdk.Stack {
 
         const provider = new cr.Provider(this, 'Provider', {
             onEventHandler: customRouteLambda,
-            logRetention: logs.RetentionDays.ONE_YEAR,
+            // logRetention: logs.RetentionDays.ONE_YEAR,
         });
 
         this.firewallVpc
@@ -207,31 +207,39 @@ export class FirewallVpcStack extends cdk.Stack {
                 }
             );
 
-        NagSuppressions.addResourceSuppressionsByPath(
-            this,
-            `/${this.node.path}/Provider/framework-onEvent/Resource`,
-            [
-                {
-                id: "NIST.800.53.R4-LambdaInsideVPC",
-                reason:
-                    "The AwsCustomResource type does not support being placed in a VPC. " +
-                    "This can only ever make limited-permissions calls that will appear in CloudTrail.",
-                },
-            ]
-        );
+            NagSuppressions.addResourceSuppressionsByPath(
+                this,
+                `/${this.node.path}/Provider/framework-onEvent/Resource`,
+                [
+                    {
+                    id: "NIST.800.53.R4-LambdaInsideVPC",
+                    reason:
+                        "The AwsCustomResource type does not support being placed in a VPC. " +
+                        "This can only ever make limited-permissions calls that will appear in CloudTrail.",
+                    },
+                ]
+            );
 
-        NagSuppressions.addResourceSuppressionsByPath(
-            this, 
-            `/${this.node.path}/Provider/framework-onEvent/ServiceRole/DefaultPolicy/Resource`,
-            [
-                {
-                id: "NIST.800.53.R4-IAMNoInlinePolicy",
-                reason: "Inline policy holds no security threat",
-                },
-        ]);
+            NagSuppressions.addResourceSuppressionsByPath(
+                this, 
+                `/${this.node.path}/Provider/framework-onEvent/ServiceRole/DefaultPolicy/Resource`,
+                [
+                    {
+                    id: "NIST.800.53.R4-IAMNoInlinePolicy",
+                    reason: "Inline policy holds no security threat",
+                    },
+            ]);
 
-        
-            
+            // NagSuppressions.addResourceSuppressionsByPath(
+            //     this, 
+            //     `/${this.node.path}/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource`,
+            //     [
+            //         {
+            //         id: "NIST.800.53.R4-IAMNoInlinePolicy",
+            //         reason: "Inline policy holds no security threat",
+            //         },
+            // ]);
+    
             // Create default route towards firewall endpoint from TGW subnets.
             new ec2.CfnRoute(this, `${subnetName}AnfRoute`, {
                 destinationCidrBlock: '0.0.0.0/0',

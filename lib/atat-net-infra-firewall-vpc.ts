@@ -126,26 +126,11 @@ export class FirewallVpcStack extends cdk.Stack {
           subnetList.push(subnetMappingProperty);
       }
       
-      // Use firewallPolicyArn as needed in this stack
-      // const firewallPolicyArn = cdk.Fn.importValue('FirewallPolicyOutputArn');
-      
       const cfnFirewall = new networkfirewall.CfnFirewall(this, 'AtatNetFirewall', {
           firewallName: 'AtatFirewall',
           firewallPolicyArn: props.fwPolicy,
           subnetMappings: subnetList,
-          // the properties below are optional
-          // ipAddressType: 'ipAddressType',
           vpcId: this.firewallVpc.vpcId,
-      
-          // the properties below are optional
-          // deleteProtection: false,
-          // description: 'description',
-          // firewallPolicyChangeProtection: false,
-          // subnetChangeProtection: false,
-          // tags: [{
-          // key: 'key',
-          // value: 'value',
-          // }],
       });
     }
 }

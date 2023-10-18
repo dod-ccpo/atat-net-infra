@@ -23,6 +23,7 @@ export interface AtatNetStackProps extends cdk.StackProps {
     environmentName?: string;
     tgwId: string;
     fwPolicy: string;
+    internalRouteTableId: string;
   }
 export class FirewallVpcStack extends cdk.Stack {
     public readonly firewallVpc: ec2.IVpc;
@@ -111,6 +112,16 @@ export class FirewallVpcStack extends cdk.Stack {
             ],
             }
         );
+
+        // 
+        // Default route in TGW Route Table
+        // 
+
+        const defaultRouteTgw = new ec2.CfnTransitGatewayRoute(this, 'TGWRoute', {
+            destinationCidrBlock: '0.0.0.0/0',
+            transitGatewayAttachmentId: tgwAttachment.attrId,
+            transitGatewayRouteTableId: props.internalRouteTableId,
+        });
 
         // 
         // Network Firewall Endpoints

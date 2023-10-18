@@ -15,13 +15,34 @@
     #   name: Run Tests
     #   runs-on: ubuntu-latest
     #   steps:
-    #     # Sonar cloud scan
+    #     - name: Checkout the repository
+    #       uses: actions/checkout@v3
+    #       with:
+    #         fetch-depth: 0
+    #     - name: Setup NodeJS
+    #       uses: actions/setup-node@v3
+    #       with:
+    #         node-version-file: ".nvmrc"
+    #         cache: npm
+    #     - name: Install global dependencies
+    #       run: |
+    #         npm install -g aws-cdk
+    #     - name: Install project dependencies
+    #       run: |
+    #         npm ci
+    #     - name: Lint the project
+    #       run: npm run lint
+    #     - name: Build the project
+    #       run: npm run build
+    #     - name: Run test suite
+    #       run: npm test
+    #       # This step will fail for external collaborators
     #     - name: Trigger SonarCloud
     #       uses: SonarSource/sonarcloud-github-action@master
     #       env:
     #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    secretScan:
+    SecretsScan:
       name: Scan for secrets
       runs-on: ubuntu-latest
       steps:

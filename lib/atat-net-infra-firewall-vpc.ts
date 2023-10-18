@@ -5,11 +5,9 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as cr from 'aws-cdk-lib/custom-resources';
+import * as path from 'path';
 import {  aws_networkfirewall as networkfirewall } from 'aws-cdk-lib';
 import { CustomResource, Duration, RemovalPolicy } from 'aws-cdk-lib';
-import { vpc } from 'cdk-nag/lib/rules';
-import { SubnetCidrBlockStateCode, VpcCidrBlockStateCode } from '@aws-sdk/client-ec2';
-import { NetworkFirewallRules } from './atat-net-infra-firewall-policy'
 import { NagSuppressions, NIST80053R4Checks } from 'cdk-nag';
 
 export interface AtatNetStackProps extends cdk.StackProps {
@@ -91,6 +89,10 @@ export class FirewallVpcStack extends cdk.Stack {
               reason: "adding vpc flow logs in separate feature/branch, hence this will be removed",
             }
           ]);
+
+        // 
+        // TGW VPC Attachment
+        // 
         
         const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
             transitGatewayId: props.tgwId,
@@ -111,26 +113,129 @@ export class FirewallVpcStack extends cdk.Stack {
         );
 
         // 
-// Network Firewall Endpoints
-// 
+        // Network Firewall Endpoints
+        // 
   
-      const firewallSubnets = this.firewallVpc.selectSubnets({
-        subnetGroupName: 'Firewall',
-      });
+        const firewallSubnets = this.firewallVpc.selectSubnets({
+            subnetGroupName: 'Firewall',
+        });
 
-      let subnetList: networkfirewall.CfnFirewall.SubnetMappingProperty[] = [];
-      for (const subnet of firewallSubnets.subnets) { // Iterate over individual subnets
-          const subnetMappingProperty: networkfirewall.CfnFirewall.SubnetMappingProperty = {
-              subnetId: subnet.subnetId,
-          };
-          subnetList.push(subnetMappingProperty);
-      }
-      
-      const cfnFirewall = new networkfirewall.CfnFirewall(this, 'AtatNetFirewall', {
-          firewallName: 'AtatFirewall',
-          firewallPolicyArn: props.fwPolicy,
-          subnetMappings: subnetList,
-          vpcId: this.firewallVpc.vpcId,
-      });
+        let subnetList: networkfirewall.CfnFirewall.SubnetMappingProperty[] = [];
+        for (const subnet of firewallSubnets.subnets) { // Iterate over individual subnets
+            const subnetMappingProperty: networkfirewall.CfnFirewall.SubnetMappingProperty = {
+                subnetId: subnet.subnetId,
+            };
+            subnetList.push(subnetMappingProperty);
+        }
+        
+        const cfnFirewall = new networkfirewall.CfnFirewall(this, 'AtatNetFirewall', {
+            firewallName: 'AtatFirewall',
+            firewallPolicyArn: props.fwPolicy,
+            subnetMappings: subnetList,
+            vpcId: this.firewallVpc.vpcId,
+        });
+
+        // 
+        // Custom Resource - Lambda to find network firewall endpoint IDs to use in subnet rouet tables
+        // 
+
+        const routeLambdaRole = new iam.Role(this, 'RouteLambdaRole', {
+            assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+            managedPolicies: [
+            iam.ManagedPolicy.fromAwsManagedPolicyName(
+                'service-role/AWSLambdaBasicExecutionRole'
+            ),
+            ],
+        });
+        // Create an inline policy for the IAM role
+        const inlinePolicy = new iam.Policy(this, 'routeLambdaRoleInlinePolicy   ', {
+            statements: [
+              new iam.PolicyStatement({
+                effect: iam.Effect.ALLOW,
+                actions: ['network-firewall:DescribeFirewall'],
+                resources: [cfnFirewall.attrFirewallArn],
+              }),
+            ],
+          });
+
+        NagSuppressions.addResourceSuppressions(
+            inlinePolicy, [
+            {
+              id: "NIST.800.53.R4-IAMNoInlinePolicy",
+              reason: "Inline policy holds no security threat",
+            },
+        ]);
+
+        // Attach the inline policy to the IAM role
+        routeLambdaRole.attachInlinePolicy(inlinePolicy);
+
+        const customRouteLambda = new nodejs.NodejsFunction(this, 'endpoint', {
+            description: 'Lambda function as Custom Resource to fetch Network Firewall endpoint IDs',
+            entry: path.join(__dirname, 'lambda/firewall/net-firewall-custom-resource.ts'),
+            functionName: 'CustomRouteLambda',
+            role: routeLambdaRole,
+            timeout: Duration.seconds(30),
+        });
+
+        NagSuppressions.addResourceSuppressions(customRouteLambda, [
+            {
+              id: "NIST.800.53.R4-LambdaInsideVPC",
+              reason: "Testing lambda, will add VPC in the future",
+            }
+          ]);
+
+        const provider = new cr.Provider(this, 'Provider', {
+            onEventHandler: customRouteLambda,
+        });
+
+        this.firewallVpc
+            .selectSubnets({ subnetGroupName: 'Transit' })
+            .subnets.forEach((subnet) => {
+            const subnetName = subnet.node.path.split('/').pop(); // E.g. TransitGatewayStack/InspectionVPC/PublicSubnet1
+
+            // Custom resource returns AWS Network Firewall endpoint ID in correct availability zone.
+            const endpoint = new CustomResource(
+                this,
+                `AnfEndpointFor-${subnetName}`,
+                {
+                serviceToken: provider.serviceToken,
+                properties: {
+                    FirewallName: cfnFirewall.firewallName,
+                    AvailabilityZone: subnet.availabilityZone,
+                },
+                }
+            );
+
+            NagSuppressions.addResourceSuppressionsByPath(
+                this,
+                `/${this.node.path}/Provider/framework-onEvent/Resource`,
+                [
+                    {
+                    id: "NIST.800.53.R4-LambdaInsideVPC",
+                    reason:
+                        "The AwsCustomResource type does not support being placed in a VPC. " +
+                        "This can only ever make limited-permissions calls that will appear in CloudTrail.",
+                    },
+                ]
+            );
+
+            NagSuppressions.addResourceSuppressionsByPath(
+                this, 
+                `/${this.node.path}/Provider/framework-onEvent/ServiceRole/DefaultPolicy/Resource`,
+                [
+                    {
+                    id: "NIST.800.53.R4-IAMNoInlinePolicy",
+                    reason: "Inline policy holds no security threat",
+                    },
+            ]);
+    
+            // Create default route towards firewall endpoint from TGW subnets.
+            const ec2CfnRoute = new ec2.CfnRoute(this, `${subnetName}AnfRoute`, {
+                destinationCidrBlock: '0.0.0.0/0',
+                routeTableId: subnet.routeTable.routeTableId,
+                vpcEndpointId: endpoint.getAttString('EndpointId'),
+                });
+            });
     }
 }
+

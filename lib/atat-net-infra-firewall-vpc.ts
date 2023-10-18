@@ -17,7 +17,7 @@ export interface AtatNetStackProps extends cdk.StackProps {
      * If this is not provided, the default value from the CDK's VPC construct
      * will be used. VPCs with overlapping ranges may cause routing issues for
      * the application. This value should almost always be provided.
-     */
+     **/
     vpcCidr?: string;
     vpcFlowLogBucket?: string;
     environmentName?: string;
@@ -114,7 +114,7 @@ export class FirewallVpcStack extends cdk.Stack {
         );
 
         // 
-        // Default route in TGW Route Table
+        // Default route in  internal TGW Route Table pointing to firewall vpc attachment
         // 
 
         const defaultRouteTgw = new ec2.CfnTransitGatewayRoute(this, 'TGWRoute', {

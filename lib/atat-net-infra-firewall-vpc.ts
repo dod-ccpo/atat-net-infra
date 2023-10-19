@@ -122,9 +122,15 @@ export class FirewallVpcStack extends cdk.Stack {
             destination: ec2.FlowLogDestination.toCloudWatchLogs(
               new logs.LogGroup(this, "vpc-cssp-cwl-logs", {
                 retention: logs.RetentionDays.INFINITE,
+                //encryptionKey: 
               })
+              
             ),
           });
+
+          NagSuppressions.addResourceSuppressions(this.firewallVpc, [
+            { id: "NIST.800.53.R4-IAMNoInlinePolicy", reason: "IAM Inline policy is to be used." },
+          ]);
         
         const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
             transitGatewayId: props.tgwId,

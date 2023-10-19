@@ -49,7 +49,7 @@ export class NetInfraPipelineStage extends cdk.Stage {
         reason: "IAM Inline policy proposes no risk to security using it for resources",
       },
       {
-        id: "NIST.800.53.R4-IAMNoInlinePolicy",
+        id: "NIST.800.53.R4-CloudWatchLogGroupRetentionPeriod",
         reason: "CW logs are retaining logs by 12 months",
       }
 

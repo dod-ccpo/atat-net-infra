@@ -264,12 +264,14 @@ export class FirewallVpcStack extends cdk.Stack {
                     reason: "Inline policy holds no security threat",
                     },
             ]);
+
+            const endptID = endpoint.getAttString('EndpointId')
     
             // Create default route towards firewall endpoint from TGW subnets.
             new ec2.CfnRoute(this, `${subnetName}AnfRoute`, {
                 destinationCidrBlock: '0.0.0.0/0',
                 routeTableId: subnet.routeTable.routeTableId,
-                vpcEndpointId: endpoint.getAttString('EndpointId'),
+                vpcEndpointId: endptID,
                 });
             });
     }

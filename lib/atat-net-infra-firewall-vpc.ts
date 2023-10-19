@@ -189,7 +189,7 @@ export class FirewallVpcStack extends cdk.Stack {
               new iam.PolicyStatement({
                 effect: iam.Effect.ALLOW,
                 actions: ['network-firewall:DescribeFirewall'],
-                resources: ['*'],
+                resources: [cfnFirewall.attrFirewallArn],
               }),
             ],
           });

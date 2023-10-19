@@ -198,6 +198,7 @@ export class FirewallVpcStack extends cdk.Stack {
         const provider = new cr.Provider(this, 'Provider', {
             onEventHandler: customRouteLambda,
         });
+        provider.node.addDependency(cfnFirewall);
 
         this.firewallVpc
             .selectSubnets({ subnetGroupName: 'Transit' })
@@ -246,7 +247,7 @@ export class FirewallVpcStack extends cdk.Stack {
                 routeTableId: subnet.routeTable.routeTableId,
                 vpcEndpointId: endpoint.getAttString('EndpointId'),
                 });
-            ec2CfnRoute.node.addDependency(cfnFirewall);
+            // ec2CfnRoute.node.addDependency(cfnFirewall);
             });
     }
 }

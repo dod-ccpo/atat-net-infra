@@ -44,6 +44,15 @@ export class NetInfraPipelineStage extends cdk.Stage {
         id: "NIST.800.53.R4-CloudWatchLogGroupEncrypted",
         reason: "CloudFormation does not support KmsKeyId for AWS::Logs::LogGroup in us-gov-west-1",
       },
+      {
+        id: "NIST.800.53.R4-IAMNoInlinePolicy",
+        reason: "IAM Inline policy proposes no risk to security using it for resources",
+      },
+      {
+        id: "NIST.800.53.R4-IAMNoInlinePolicy",
+        reason: "CW logs are retaining logs by 12 months",
+      }
+
     ]);
 
   };

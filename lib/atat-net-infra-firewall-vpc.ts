@@ -232,7 +232,7 @@ export class FirewallVpcStack extends cdk.Stack {
             // Custom resource returns AWS Network Firewall endpoint ID in correct availability zone.
             const endpoint = new CustomResource(
                 this,
-                `AnfEndpointFor-${subnetName}`,
+                `Anf-EndpointFor-${subnetName}`,
                 {
                 serviceToken: provider.serviceToken,
                 properties: {
@@ -267,12 +267,12 @@ export class FirewallVpcStack extends cdk.Stack {
 
             // const endptID = endpoint.getAttString('EndpointId')
     
-            // // Create default route towards firewall endpoint from TGW subnets.
-            // new ec2.CfnRoute(this, `${subnetName}AnfRoute`, {
-            //     destinationCidrBlock: '0.0.0.0/0',
-            //     routeTableId: subnet.routeTable.routeTableId,
-            //     vpcEndpointId: endptID,
-            //     });
+            // Create default route towards firewall endpoint from TGW subnets.
+            new ec2.CfnRoute(this, `${subnetName}Anf-Route`, {
+                destinationCidrBlock: '0.0.0.0/0',
+                routeTableId: subnet.routeTable.routeTableId,
+                vpcEndpointId: endpoint.getAttString('EndpointId'),
+                });
             });
     }
 }

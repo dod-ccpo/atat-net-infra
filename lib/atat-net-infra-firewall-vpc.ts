@@ -265,13 +265,11 @@ export class FirewallVpcStack extends cdk.Stack {
                     },
             ]);
 
-            // const endptID = endpoint.getAttString('EndpointId')
-    
             // Create default route towards firewall endpoint from TGW subnets.
             new ec2.CfnRoute(this, `${subnetName}Anf-Route`, {
                 destinationCidrBlock: '0.0.0.0/0',
                 routeTableId: subnet.routeTable.routeTableId,
-                vpcEndpointId: endpoint.getAttString('EndpointId'),
+                vpcEndpointId: endpoint.getAttString('Endpoint'),
                 });
             });
     }

@@ -127,10 +127,6 @@ export class FirewallVpcStack extends cdk.Stack {
               
             ),
           });
-
-          NagSuppressions.addResourceSuppressions(this.firewallVpc, [
-            { id: "NIST.800.53.R4-IAMNoInlinePolicy", reason: "IAM Inline policy is to be used." },
-          ]);
         
         const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
             transitGatewayId: props.tgwId,

@@ -269,7 +269,7 @@ export class FirewallVpcStack extends cdk.Stack {
             new ec2.CfnRoute(this, `${subnetName}Anf-Route`, {
                 destinationCidrBlock: '0.0.0.0/0',
                 routeTableId: subnet.routeTable.routeTableId,
-                vpcEndpointId: endpoint.getAttString('Endpoint'),
+                vpcEndpointId: 'vpce-03e1743c95452a2c2'//endpoint.getAttString('EndpointId'),
                 });
             });
     }

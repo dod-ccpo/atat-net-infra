@@ -173,6 +173,8 @@ export class FirewallVpcStack extends cdk.Stack {
         // Custom Resource - Lambda to find network firewall endpoint IDs to use in subnet rouet tables
         // 
 
+        // const resourceARN = cdk.Fn.getAtt(cfnFirewall, "Arn").toString();
+
         const routeLambdaRole = new iam.Role(this, 'RouteLambdaRole', {
             assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
             managedPolicies: [
@@ -264,7 +266,7 @@ export class FirewallVpcStack extends cdk.Stack {
             ]);
     
             // Create default route towards firewall endpoint from TGW subnets.
-            const ec2CfnRoute = new ec2.CfnRoute(this, `${subnetName}AnfRoute`, {
+            new ec2.CfnRoute(this, `${subnetName}AnfRoute`, {
                 destinationCidrBlock: '0.0.0.0/0',
                 routeTableId: subnet.routeTable.routeTableId,
                 vpcEndpointId: endpoint.getAttString('EndpointId'),

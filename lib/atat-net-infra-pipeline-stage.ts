@@ -37,6 +37,26 @@ export class NetInfraPipelineStage extends cdk.Stage {
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));
     cdk.Aspects.of(atatFirewallPolicyStack).add(new NIST80053R4Checks({ verbose: true }));
 
+    NagSuppressions.addStackSuppressions(atatFirewallVpc, [
+      // This is a temporary supression (hopefully) and we will adopt this as soon as the feature
+      // is actually available within the GovCloud partition. We have internally opened an
+      // AWS Support case for this issue.
+      {
+        id: "NIST.800.53.R4-CloudWatchLogGroupEncrypted",
+        reason: "CloudFormation does not support KmsKeyId for AWS::Logs::LogGroup in us-gov-west-1",
+      },
+      {
+        id: "NIST.800.53.R4-IAMNoInlinePolicy",
+        reason: "IAM Inline policy proposes no risk to security using it for resources",
+      },
+      {
+        id: "NIST.800.53.R4-CloudWatchLogGroupRetentionPeriod",
+        reason: "CW logs are retaining logs by 12 months",
+      }
+
+    ]);
+
+
   };
 }
 

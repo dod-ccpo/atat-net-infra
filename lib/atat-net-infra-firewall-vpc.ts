@@ -117,7 +117,7 @@ export class FirewallVpcStack extends cdk.Stack {
               /* eslint-enable no-template-curly-in-string */
             ],
             destination: ec2.FlowLogDestination.toCloudWatchLogs(
-              new logs.LogGroup(this, "vpc-cssp-cwl-logs", {
+              new logs.LogGroup(this, "Atat-firewall-vpc-logs", {
                 retention: logs.RetentionDays.INFINITE,
                 //encryptionKey: 
               })

@@ -17,12 +17,13 @@ export interface AtatNetStackProps extends cdk.StackProps {
      * If this is not provided, the default value from the CDK's VPC construct
      * will be used. VPCs with overlapping ranges may cause routing issues for
      * the application. This value should almost always be provided.
-     */
+     **/
     vpcCidr?: string;
     vpcFlowLogBucket?: string;
     environmentName?: string;
     tgwId: string;
     fwPolicy: string;
+    internalRouteTableId: string;
   }
 export class FirewallVpcStack extends cdk.Stack {
     public readonly firewallVpc: ec2.IVpc;
@@ -94,6 +95,7 @@ export class FirewallVpcStack extends cdk.Stack {
         // TGW VPC Attachment
         // 
 
+       // VPC Flow logs with Custom Format
         this.firewallVpc.addFlowLog("AllFlowLogs", {
             logFormat: [
               ec2.LogFormat.VERSION,
@@ -128,7 +130,7 @@ export class FirewallVpcStack extends cdk.Stack {
             ),
           });
         
-        const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
+          const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
             transitGatewayId: props.tgwId,
             subnetIds: this.firewallVpc.selectSubnets({
                 subnetGroupName: 'Transit',
@@ -145,6 +147,16 @@ export class FirewallVpcStack extends cdk.Stack {
             ],
             }
         );
+
+        // 
+        // Default route in  internal TGW Route Table pointing to firewall vpc attachment
+        // 
+
+        const defaultRouteTgw = new ec2.CfnTransitGatewayRoute(this, 'TGWRoute', {
+            destinationCidrBlock: '0.0.0.0/0',
+            transitGatewayAttachmentId: tgwAttachment.attrId,
+            transitGatewayRouteTableId: props.internalRouteTableId,
+        });
 
         // 
         // Network Firewall Endpoints
@@ -173,8 +185,6 @@ export class FirewallVpcStack extends cdk.Stack {
         // Custom Resource - Lambda to find network firewall endpoint IDs to use in subnet rouet tables
         // 
 
-        // const resourceARN = cdk.Fn.getAtt(cfnFirewall, "Arn").toString();
-
         const routeLambdaRole = new iam.Role(this, 'RouteLambdaRole', {
             assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
             managedPolicies: [
@@ -184,7 +194,7 @@ export class FirewallVpcStack extends cdk.Stack {
             ],
         });
         // Create an inline policy for the IAM role
-        const inlinePolicy = new iam.Policy(this, 'routeLambdaRoleInlinePolicy', {
+        const inlinePolicy = new iam.Policy(this, 'routeLambdaRoleInlinePolicy   ', {
             statements: [
               new iam.PolicyStatement({
                 effect: iam.Effect.ALLOW,
@@ -223,6 +233,7 @@ export class FirewallVpcStack extends cdk.Stack {
         const provider = new cr.Provider(this, 'Provider', {
             onEventHandler: customRouteLambda,
         });
+        provider.node.addDependency(cfnFirewall);
 
         this.firewallVpc
             .selectSubnets({ subnetGroupName: 'Transit' })
@@ -232,7 +243,7 @@ export class FirewallVpcStack extends cdk.Stack {
             // Custom resource returns AWS Network Firewall endpoint ID in correct availability zone.
             const endpoint = new CustomResource(
                 this,
-                `Anf-EndpointFor-${subnetName}`,
+                `AnfEndpointFor-${subnetName}`,
                 {
                 serviceToken: provider.serviceToken,
                 properties: {
@@ -264,16 +275,14 @@ export class FirewallVpcStack extends cdk.Stack {
                     reason: "Inline policy holds no security threat",
                     },
             ]);
-
+    
             // Create default route towards firewall endpoint from TGW subnets.
-            const addRoute = new ec2.CfnRoute(this, `${subnetName}Anf-Route`, {
+            const ec2CfnRoute = new ec2.CfnRoute(this, `${subnetName}AnfRoute`, {
                 destinationCidrBlock: '0.0.0.0/0',
                 routeTableId: subnet.routeTable.routeTableId,
                 vpcEndpointId: endpoint.getAttString('EndpointId'),
                 });
-
-            addRoute.node.addDependency(cfnFirewall);
+            // ec2CfnRoute.node.addDependency(cfnFirewall);
             });
     }
 }
-

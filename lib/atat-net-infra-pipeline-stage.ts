@@ -6,9 +6,10 @@ import { AtatContextValue } from "./context-values";
 import { NagSuppressions, NIST80053R4Checks, AwsSolutionsChecks } from 'cdk-nag';
 import { TransitGatewayStack } from './atat-net-infra-tgw';
 import { FirewallVpcStack } from './atat-net-infra-firewall-vpc'
+import { NetworkFirewallRules } from './atat-net-infra-firewall-policy'
 
 export interface AtatProps extends cdk.StackProps {
-  vpcCidr: string;
+  vpcCidr?: string;
   environmentName: string;
   orgARN: string;
 }
@@ -20,13 +21,20 @@ export class NetInfraPipelineStage extends cdk.Stage {
     const atatTgw = new TransitGatewayStack(this, 'AtatTransitGateway', {
       orgARN: props.orgARN
     });
+
+    const atatFirewallPolicyStack = new NetworkFirewallRules(this, 'NetworkFirewallPolicyStack');
+
     const atatFirewallVpc = new FirewallVpcStack(this, 'AtatFirewallVpc', {
       vpcCidr: props.vpcCidr,
       environmentName: props.environmentName,
-      tgwId: atatTgw.tgwId
-    } );
+      tgwId: atatTgw.tgwId,
+      fwPolicy: atatFirewallPolicyStack.fwPolicy
 
+    });
+
+    cdk.Aspects.of(atatFirewallVpc).add(new NIST80053R4Checks({ verbose: true }));
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));
+    cdk.Aspects.of(atatFirewallPolicyStack).add(new NIST80053R4Checks({ verbose: true }));
 
   };
 }

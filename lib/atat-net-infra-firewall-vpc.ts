@@ -146,9 +146,14 @@ export class FirewallVpcStack extends cdk.Stack {
             vpcId: this.firewallVpc.vpcId,
         });
 
-        // 
-        // Custom Resource - Lambda to find network firewall endpoint IDs to use in subnet rouet tables
-        // 
+        /**
+        * Custom Resource - Lambda to find network firewall endpoint IDs to use in subnet rouet tables
+        *
+        * The reason a custom reasoure is need to find the network firewall endpoint IDs is outlined in 
+        * below link:
+        * https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-networkfirewall/issues/15
+        * 
+        **/
 
         const routeLambdaRole = new iam.Role(this, 'RouteLambdaRole', {
             assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
@@ -247,7 +252,6 @@ export class FirewallVpcStack extends cdk.Stack {
                 routeTableId: subnet.routeTable.routeTableId,
                 vpcEndpointId: endpoint.getAttString('EndpointId'),
                 });
-            // ec2CfnRoute.node.addDependency(cfnFirewall);
             });
     }
 }

@@ -28,7 +28,8 @@ export class NetInfraPipelineStage extends cdk.Stage {
       vpcCidr: props.vpcCidr,
       environmentName: props.environmentName,
       tgwId: atatTgw.tgwId,
-      fwPolicy: atatFirewallPolicyStack.fwPolicy
+      fwPolicy: atatFirewallPolicyStack.fwPolicy,
+      internalRouteTableId: atatTgw.internalRouteTable.ref,
 
     });
 

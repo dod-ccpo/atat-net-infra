@@ -17,12 +17,13 @@ export interface AtatNetStackProps extends cdk.StackProps {
      * If this is not provided, the default value from the CDK's VPC construct
      * will be used. VPCs with overlapping ranges may cause routing issues for
      * the application. This value should almost always be provided.
-     */
+     **/
     vpcCidr?: string;
     vpcFlowLogBucket?: string;
     environmentName?: string;
     tgwId: string;
     fwPolicy: string;
+    internalRouteTableId: string;
   }
 export class FirewallVpcStack extends cdk.Stack {
     public readonly firewallVpc: ec2.IVpc;
@@ -113,6 +114,16 @@ export class FirewallVpcStack extends cdk.Stack {
         );
 
         // 
+        // Default route in  internal TGW Route Table pointing to firewall vpc attachment
+        // 
+
+        const defaultRouteTgw = new ec2.CfnTransitGatewayRoute(this, 'TGWRoute', {
+            destinationCidrBlock: '0.0.0.0/0',
+            transitGatewayAttachmentId: tgwAttachment.attrId,
+            transitGatewayRouteTableId: props.internalRouteTableId,
+        });
+
+        // 
         // Network Firewall Endpoints
         // 
   
@@ -135,9 +146,14 @@ export class FirewallVpcStack extends cdk.Stack {
             vpcId: this.firewallVpc.vpcId,
         });
 
-        // 
-        // Custom Resource - Lambda to find network firewall endpoint IDs to use in subnet rouet tables
-        // 
+        /**
+        * Custom Resource - Lambda to find network firewall endpoint IDs to use in subnet rouet tables
+        *
+        * The reason a custom reasoure is need to find the network firewall endpoint IDs is outlined in 
+        * below link:
+        * https://github.com/aws-cloudformation/aws-cloudformation-resource-providers-networkfirewall/issues/15
+        * 
+        **/
 
         const routeLambdaRole = new iam.Role(this, 'RouteLambdaRole', {
             assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
@@ -153,7 +169,7 @@ export class FirewallVpcStack extends cdk.Stack {
               new iam.PolicyStatement({
                 effect: iam.Effect.ALLOW,
                 actions: ['network-firewall:DescribeFirewall'],
-                resources: [cfnFirewall.attrFirewallArn],
+                resources: ['*'],
               }),
             ],
           });
@@ -187,6 +203,7 @@ export class FirewallVpcStack extends cdk.Stack {
         const provider = new cr.Provider(this, 'Provider', {
             onEventHandler: customRouteLambda,
         });
+        provider.node.addDependency(cfnFirewall);
 
         this.firewallVpc
             .selectSubnets({ subnetGroupName: 'Transit' })

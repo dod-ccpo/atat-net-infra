@@ -77,7 +77,7 @@ export class TransitGatewayStack extends cdk.Stack {
     // Create ARN of TGW as it is only retrievable via .attrId from within the stack but we need the ARN
     const transitGatewayArn = `arn:aws-us-gov:ec2:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:transit-gateway/${this.transitGateway.attrId}`;
 
-    // // Retrieve the ARN of the principal from props/context-values
+    // Retrieve the ARN of the principal from props/context-values
     const {orgARN } = props;
     
     // RAM Share to Dev Org 
@@ -117,6 +117,7 @@ export class TransitGatewayStack extends cdk.Stack {
         }),
       ],
     });
+
     // Attach the inline policy to the IAM role
     attachmentLambdaRole.attachInlinePolicy(inlinePolicy);
 
@@ -148,8 +149,11 @@ export class TransitGatewayStack extends cdk.Stack {
         reason: "Testing lambda, will add VPC in the future",
       }
     ]);
-  
-    // Evnet pattern and rule for when there is a CreateTransitGatewayVpcAttachment API call to trigger the lambda function automation
+    
+    /**
+    * Event pattern and rule for when there is a CreateTransitGatewayVpcAttachment API call
+    * to trigger the lambda function automation
+    **/
     const eventPattern = {
       source: ['aws.ec2'],
       detail: {

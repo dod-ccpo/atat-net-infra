@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as events from 'aws-cdk-lib/aws-events';
 import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as cr from 'aws-cdk-lib/custom-resources';
@@ -124,6 +125,19 @@ export class FirewallVpcStack extends cdk.Stack {
 
             ),
           });
+        
+          const eventbus = new events.EventBus(this, 'Hell-Bus-Event', {
+            eventBusName: 'ATAT-Event-Bus'
+          });
+          
+          // eventbus.archive('MyArchive', {
+          //   archiveName: 'MyCustomEventBusArchive',
+          //   description: 'MyCustomerEventBus Archive',
+          //   eventPattern: {
+          //     account: [cdk.Stack.of(this).account],
+          //   },
+          //   retention: cdk.Duration.days(365),
+          // });
 
         // 
         // TGW VPC Attachment

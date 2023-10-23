@@ -155,18 +155,5 @@ export class NetworkFirewallRules extends cdk.Stack {
     });
 
     this.fwPolicy = fwPolicy.attrFirewallPolicyArn;
-
-    const eventbus = new events.EventBus(this, 'Hell-Bus-Event', {
-      eventBusName: 'ATAT-Event-Bus'
-    });
-    
-    eventbus.archive('MyArchive', {
-      archiveName: 'MyCustomEventBusArchive',
-      description: 'MyCustomerEventBus Archive',
-      eventPattern: {
-        account: [cdk.Stack.of(this).account],
-      },
-      retention: cdk.Duration.days(365),
-    });
   }
 }

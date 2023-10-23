@@ -129,6 +129,25 @@ export class FirewallVpcStack extends cdk.Stack {
           const eventbus = new events.EventBus(this, 'TGW-Bus-Event', {
             eventBusName: 'ATAT-Event-Bus'
           });
+
+          // const buspolicy = new iam.Policy(this, 'eventbusPolicy   ', {
+          //   statements: [
+          //     new iam.PolicyStatement({
+          //       sid: 'TransitBusEventPolicy',
+          //       effect: iam.Effect.ALLOW,
+          //       actions: ['events:PutEvents'],
+          //       resources: ['*'],
+          //     }),
+          //   ],
+          // });
+
+          eventbus.addToResourcePolicy(new iam.PolicyStatement({
+            sid: 'TransitBusEventPolicy',
+            effect: iam.Effect.ALLOW,
+            actions: ['events:PutEvents'],
+            principals: [new iam.AccountPrincipal('123456789012')],
+            resources: [eventbus.eventBusArn],
+        }));
           
           // eventbus.archive('MyArchive', {
           //   archiveName: 'MyCustomEventBusArchive',

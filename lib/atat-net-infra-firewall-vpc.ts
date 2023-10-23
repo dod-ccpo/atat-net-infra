@@ -126,18 +126,18 @@ export class FirewallVpcStack extends cdk.Stack {
             ),
           });
         
-          const eventbus = new events.EventBus(this, 'Hell-Bus-Event', {
+          const eventbus = new events.EventBus(this, 'TGW-Bus-Event', {
             eventBusName: 'ATAT-Event-Bus'
           });
           
-          // eventbus.archive('MyArchive', {
-          //   archiveName: 'MyCustomEventBusArchive',
-          //   description: 'MyCustomerEventBus Archive',
-          //   eventPattern: {
-          //     account: [cdk.Stack.of(this).account],
-          //   },
-          //   retention: cdk.Duration.days(365),
-          // });
+          eventbus.archive('MyArchive', {
+            archiveName: 'MyCustomEventBusArchive',
+            description: 'MyCustomerEventBus Archive',
+            eventPattern: {
+              account: [cdk.Stack.of(this).account],
+            },
+            retention: cdk.Duration.days(365),
+          });
 
         // 
         // TGW VPC Attachment

@@ -1,4 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
 import { Construct } from 'constructs';
 import * as networkfirewall from 'aws-cdk-lib/aws-networkfirewall';
 
@@ -153,5 +155,18 @@ export class NetworkFirewallRules extends cdk.Stack {
     });
 
     this.fwPolicy = fwPolicy.attrFirewallPolicyArn;
+
+    const eventbus = new events.EventBus(this, 'Hell-Bus-Event', {
+      eventBusName: 'ATAT-Event-Bus'
+    });
+    
+    eventbus.archive('MyArchive', {
+      archiveName: 'MyCustomEventBusArchive',
+      description: 'MyCustomerEventBus Archive',
+      eventPattern: {
+        account: [cdk.Stack.of(this).account],
+      },
+      retention: cdk.Duration.days(365),
+    });
   }
 }

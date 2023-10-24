@@ -161,6 +161,7 @@ export class FirewallVpcStack extends cdk.Stack {
         });
         NagSuppressions.addResourceSuppressions(loadBalancer, [
           { id: "NIST.800.53.R4-ALBWAFEnabled", reason: "Palo Alto NGFW is in use" },
+          { id: "NIST.800.53.R4-ELBLoggingEnabled", reason: "This is for testing LB creation only"}
         ]);
     
         loadBalancer.setAttribute("routing.http.drop_invalid_header_fields.enabled", "true");

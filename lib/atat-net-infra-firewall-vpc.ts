@@ -125,38 +125,6 @@ export class FirewallVpcStack extends cdk.Stack {
 
             ),
           });
-        
-          const eventbus = new events.EventBus(this, 'TGW-Bus-Event', {
-            eventBusName: 'ATAT-Event-Bus'
-          });
-
-          // const buspolicy = new iam.Policy(this, 'eventbusPolicy   ', {
-          //   statements: [
-          //     new iam.PolicyStatement({
-          //       sid: 'TransitBusEventPolicy',
-          //       effect: iam.Effect.ALLOW,
-          //       actions: ['events:PutEvents'],
-          //       resources: ['*'],
-          //     }),
-          //   ],
-          // });
-
-          eventbus.addToResourcePolicy(new iam.PolicyStatement({
-            sid: 'TransitBusEventPolicy',
-            effect: iam.Effect.ALLOW,
-            actions: ['events:PutEvents'],
-            principals: [new iam.StarPrincipal()],
-            resources: [eventbus.eventBusArn],
-        }));
-          
-          // eventbus.archive('MyArchive', {
-          //   archiveName: 'MyCustomEventBusArchive',
-          //   description: 'MyCustomerEventBus Archive',
-          //   eventPattern: {
-          //     account: [cdk.Stack.of(this).account],
-          //   },
-          //   retention: cdk.Duration.days(365),
-          // });
 
         // 
         // TGW VPC Attachment

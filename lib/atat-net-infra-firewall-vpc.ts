@@ -145,7 +145,7 @@ export class FirewallVpcStack extends cdk.Stack {
             sid: 'TransitBusEventPolicy',
             effect: iam.Effect.ALLOW,
             actions: ['events:PutEvents'],
-            principals: [new iam.AccountPrincipal('123456789012')],
+            //principals: "*",
             resources: [eventbus.eventBusArn],
         }));
           

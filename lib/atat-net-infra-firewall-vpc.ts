@@ -25,6 +25,7 @@ export interface AtatNetStackProps extends cdk.StackProps {
     tgwId: string;
     fwPolicy: string;
     internalRouteTableId: string;
+    orgARN?: string;
   }
 export class FirewallVpcStack extends cdk.Stack {
     public readonly firewallVpc: ec2.IVpc;
@@ -129,6 +130,30 @@ export class FirewallVpcStack extends cdk.Stack {
         // 
         // TGW VPC Attachment
         // 
+        const eventbus = new events.EventBus(this, 'TGW-Bus-Event', {
+          eventBusName: 'ATAT-Event-Bus'
+        });
+        eventbus.addToResourcePolicy(new iam.PolicyStatement({
+          sid: 'TransitBusEventPolicy',
+          effect: iam.Effect.ALLOW,
+          actions: ['events:PutEvents'],
+          principals: [new iam.StarPrincipal()],
+          resources: [eventbus.eventBusArn],
+          conditions: {
+            'StringEquals': {
+              'aws:PrincipalOrgID': props.orgARN,
+        },
+      },
+      }));
+        
+        // eventbus.archive('MyArchive', {
+        //   archiveName: 'MyCustomEventBusArchive',
+        //   description: 'MyCustomerEventBus Archive',
+        //   eventPattern: {
+        //     account: [cdk.Stack.of(this).account],
+        //   },
+        //   retention: cdk.Duration.days(365),
+        // });
         
         const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
             transitGatewayId: props.tgwId,

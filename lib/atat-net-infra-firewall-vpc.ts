@@ -4,6 +4,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs';
+import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as cr from 'aws-cdk-lib/custom-resources';
 import * as path from 'path';
@@ -148,6 +149,28 @@ export class FirewallVpcStack extends cdk.Stack {
             ],
             }
         );
+
+        const loadBalancer = new elbv2.ApplicationLoadBalancer(this, "LoadBalancer", {
+          vpc: this.firewallVpc,
+          internetFacing: false,
+          deletionProtection: true,
+          dropInvalidHeaderFields: true,
+          vpcSubnets: this.firewallVpc.selectSubnets({
+            subnetGroupName: 'Firewall',
+          })
+        });
+        NagSuppressions.addResourceSuppressions(loadBalancer, [
+          { id: "NIST.800.53.R4-ALBWAFEnabled", reason: "Palo Alto NGFW is in use" },
+        ]);
+    
+        loadBalancer.setAttribute("routing.http.drop_invalid_header_fields.enabled", "true");
+    
+        NagSuppressions.addResourceSuppressions(loadBalancer, [
+          {
+            id: "NIST.800.53.R4-ALBWAFEnabled",
+            reason: "Layer 7 rules are applied on a separate firewall appliance",
+          },
+        ]);
 
         // 
         // Default route in  internal TGW Route Table pointing to firewall vpc attachment

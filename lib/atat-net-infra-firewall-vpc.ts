@@ -150,29 +150,6 @@ export class FirewallVpcStack extends cdk.Stack {
             }
         );
 
-        const loadBalancer = new elbv2.ApplicationLoadBalancer(this, "LoadBalancer", {
-          vpc: this.firewallVpc,
-          internetFacing: false,
-          deletionProtection: true,
-          dropInvalidHeaderFields: true,
-          vpcSubnets: this.firewallVpc.selectSubnets({
-            subnetGroupName: 'Firewall',
-          })
-        });
-        NagSuppressions.addResourceSuppressions(loadBalancer, [
-          { id: "NIST.800.53.R4-ALBWAFEnabled", reason: "Palo Alto NGFW is in use" },
-          { id: "NIST.800.53.R4-ELBLoggingEnabled", reason: "This is for testing LB creation only"}
-        ]);
-    
-        loadBalancer.setAttribute("routing.http.drop_invalid_header_fields.enabled", "true");
-    
-        NagSuppressions.addResourceSuppressions(loadBalancer, [
-          {
-            id: "NIST.800.53.R4-ALBWAFEnabled",
-            reason: "Layer 7 rules are applied on a separate firewall appliance",
-          },
-        ]);
-
         // 
         // Default route in  internal TGW Route Table pointing to firewall vpc attachment
         // 

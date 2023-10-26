@@ -2,7 +2,9 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as events from 'aws-cdk-lib/aws-events';
 import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs';
+import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as cr from 'aws-cdk-lib/custom-resources';
 import * as path from 'path';
@@ -24,6 +26,7 @@ export interface AtatNetStackProps extends cdk.StackProps {
     tgwId: string;
     fwPolicy: string;
     internalRouteTableId: string;
+    orgARN?: string;
   }
 export class FirewallVpcStack extends cdk.Stack {
     public readonly firewallVpc: ec2.IVpc;
@@ -127,7 +130,7 @@ export class FirewallVpcStack extends cdk.Stack {
 
         // 
         // TGW VPC Attachment
-        // 
+        //
         
         const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
             transitGatewayId: props.tgwId,

@@ -1,4 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
 import { Construct } from 'constructs';
 import * as networkfirewall from 'aws-cdk-lib/aws-networkfirewall';
 

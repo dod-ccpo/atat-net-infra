@@ -27,7 +27,32 @@ Secret must be created within Secrets Manager to store a GitHub Personal Access 
 
 The required context values are:
  - `atat:EnvironmentId`, which should be the unique name used to identify the environment
+ - `atat:orgARN`, which is used to allow same org permissions for cross-account access
+ - `atat:VersionControlBranch`, which should be the branch within the repository to watch for changes
  - `atat:GitHubPatName`, which should be the name of the Secret that contains the GitHub PAT
  - `atat:VersionControlRepo`, which should be name of the GitHub repository where the code is stored,
     including the organization name (for example, `dod-ccpo/atat-web-api`)
- - `atat:VersionControlBranch`, which should be the branch within the repository to watch for changes
+
+ These values can, of course, be set either through the CLI or via the `cdk.json` file. The last two have
+reasonable defaults set within the `cdk.json` file. Therefore, once you have confirmed those values look
+correct, deploying follows similar steps to the sandbox environment!
+
+Start off by ensuring the changes to make look reasonable:
+
+```bash
+cdk diff -c atat:EnvironmentId=<ENVIRONMENT_ID>
+```
+
+And then once you've confirmed that they do, deploy:
+
+```bash
+cdk deploy -c atat:EnvironmentId=<ENVIRONMENT_ID>
+```
+
+The deployed pipeline will be self-mutating so futher manual deployments should be rarely needed.
+The primary situations needing manual deployment are:
+ - When the GitHub PAT is rotated (using the `atat:ForceGitHubTokenVersion` context)
+ - When changes that require additional command line arguments to `cdk synth` in the self-mutate
+   step are made
+ - When it is necessary to change the branch being watched without a corresponding push to the
+   current target branch (for example, to switch from watching `main` to watching `develop`)

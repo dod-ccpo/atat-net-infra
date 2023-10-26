@@ -52,6 +52,7 @@ cdk deploy -c atat:EnvironmentId=<ENVIRONMENT_ID>
 The deployed pipeline will be self-mutating so futher manual deployments should be rarely needed.
 The primary situations needing manual deployment are:
  - When the GitHub PAT is rotated (using the `atat:ForceGitHubTokenVersion` context)
+ - Use the `aws secretsmanager list-secret-version-ids` command to get the latest PAT version.
  - When changes that require additional command line arguments to `cdk synth` in the self-mutate
    step are made
  - When it is necessary to change the branch being watched without a corresponding push to the

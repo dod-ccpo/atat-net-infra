@@ -7,6 +7,7 @@ import { NagSuppressions, NIST80053R4Checks, AwsSolutionsChecks } from 'cdk-nag'
 import { TransitGatewayStack } from './atat-net-infra-tgw';
 import { FirewallVpcStack } from './atat-net-infra-firewall-vpc'
 import { NetworkFirewallRules } from './atat-net-infra-firewall-policy'
+import { SharedCoreStack } from "./atat-net-infra-core";
 
 export interface AtatProps extends cdk.StackProps {
   vpcCidr?: string;
@@ -23,6 +24,10 @@ export class NetInfraPipelineStage extends cdk.Stage {
     });
 
     const atatFirewallPolicyStack = new NetworkFirewallRules(this, 'NetworkFirewallPolicyStack');
+
+    const atatAdditionStack = new SharedCoreStack(this, 'SharedCoreStack', {
+      orgARN: props.orgARN
+    });
 
     const atatFirewallVpc = new FirewallVpcStack(this, 'AtatFirewallVpc', {
       vpcCidr: props.vpcCidr,

@@ -37,6 +37,7 @@ export class NetInfraPipelineStage extends cdk.Stage {
     const atatAdditionStack = new SharedCoreStack(this, 'SharedCoreStack', {
       orgARN: props.orgARN
     });
+    
 
     cdk.Aspects.of(atatFirewallVpc).add(new NIST80053R4Checks({ verbose: true }));
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));

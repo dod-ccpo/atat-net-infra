@@ -16,8 +16,6 @@ export interface AtatSharedProps extends cdk.StackProps {
 }
 
 export class SharedCoreStack extends cdk.Stack {
-    public readonly firewallVpc: ec2.IVpc;
-    tgwSubnets: any;
     constructor(scope: Construct, id: string, props: AtatSharedProps) {
       super(scope, id, props);
 

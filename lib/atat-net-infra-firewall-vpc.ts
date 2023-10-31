@@ -165,7 +165,9 @@ export class FirewallVpcStack extends cdk.Stack {
         // 
 
         const fwFlowLogsGroup = new logs.LogGroup(this, 'FwFlowLogsGroup', {
-            logGroupName: 'NetworkFirewallFlowLogs'
+            logGroupName: 'NetworkFirewallFlowLogs',
+            retention: logs.RetentionDays.INFINITE
+
         });
 
         NagSuppressions.addResourceSuppressions(

@@ -22,7 +22,7 @@ export class SharedCoreStack extends cdk.Stack {
       super(scope, id, props);
 
     const tgweventbus = new events.EventBus(this, 'TGW-Event-Bus', {
-        eventBusName: 'ATAT-Event-Bus'
+        eventBusName: 'ATA-TGW-Event-Bus'
       });
       tgweventbus.addToResourcePolicy(new iam.PolicyStatement({
         sid: 'TransitBusEventPolicy',

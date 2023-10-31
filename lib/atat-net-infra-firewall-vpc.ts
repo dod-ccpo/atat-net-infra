@@ -147,7 +147,7 @@ export class FirewallVpcStack extends cdk.Stack {
       }));
 
 
-      const rule = new events.Rule(this, 'rule', {
+      const rule = new events.Rule(this, 'TGW-Association-rule', {
         eventPattern: {
           source: ["aws.ec2"],
           detail: {

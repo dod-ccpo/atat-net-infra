@@ -128,7 +128,33 @@ export class FirewallVpcStack extends cdk.Stack {
             ),
           });
 
-      // rule.addTarget(eventbus)
+      // Event Bus 
+      const tgweventbus = new events.EventBus(this, 'TGW-Event-Bus', {
+        eventBusName: 'ATA-TGW-Event-Bus'
+      });
+      tgweventbus.addToResourcePolicy(new iam.PolicyStatement({
+        sid: 'TransitBusEventPolicy',
+        effect: iam.Effect.ALLOW,
+        actions: ['events:PutEvents'],
+        principals: [new iam.ServicePrincipal('events.amazonaws.com')],
+        resources: [tgweventbus.eventBusArn],
+        conditions: {
+          'StringEquals': {
+            'aws:PrincipalOrgID': props.orgARN,
+          },
+        },
+        }));
+
+        // Event Rule
+      const rule = new events.Rule(this, 'TGW-Association-rule', {
+        eventPattern: {
+          source: ["aws.ec2"],
+          detail: {
+            'eventName': ['CreateTransitGatewayVpcAttachment']
+          }
+        },
+        eventBus: tgweventbus
+      });
 
         // 
         // TGW VPC Attachment

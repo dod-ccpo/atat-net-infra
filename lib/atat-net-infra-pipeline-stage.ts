@@ -42,6 +42,7 @@ export class NetInfraPipelineStage extends cdk.Stage {
     cdk.Aspects.of(atatFirewallVpc).add(new NIST80053R4Checks({ verbose: true }));
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));
     cdk.Aspects.of(atatFirewallPolicyStack).add(new NIST80053R4Checks({ verbose: true }));
+    cdk.Aspects.of(atatAdditionStack).add(new NIST80053R4Checks({ verbose: true }));
 
     NagSuppressions.addStackSuppressions(atatFirewallVpc, [
       // This is a temporary supression (hopefully) and we will adopt this as soon as the feature

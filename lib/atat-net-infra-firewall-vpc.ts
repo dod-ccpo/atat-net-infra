@@ -130,15 +130,15 @@ export class FirewallVpcStack extends cdk.Stack {
 
         // Event Bus
 
-        const eventbus = new events.EventBus(this, 'TGW-Bus-Event', {
+        const tgweventbus = new events.EventBus(this, 'TGW-Bus-Event', {
           eventBusName: 'ATAT-Event-Bus'
         });
-        eventbus.addToResourcePolicy(new iam.PolicyStatement({
+        tgweventbus.addToResourcePolicy(new iam.PolicyStatement({
           sid: 'TransitBusEventPolicy',
           effect: iam.Effect.ALLOW,
           actions: ['events:PutEvents'],
           principals: [new iam.ServicePrincipal('events.amazonaws.com')],
-          resources: [eventbus.eventBusArn],
+          resources: [tgweventbus.eventBusArn],
           conditions: {
             'StringEquals': {
               'aws:PrincipalOrgID': props.orgARN,
@@ -154,6 +154,7 @@ export class FirewallVpcStack extends cdk.Stack {
             'eventName': ['CreateTransitGatewayVpcAttachment']
           }
         },
+        eventBus: tgweventbus
       });
 
       // rule.addTarget(eventbus)

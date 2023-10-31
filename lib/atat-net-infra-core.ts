@@ -21,7 +21,7 @@ export class SharedCoreStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props: AtatSharedProps) {
       super(scope, id, props);
 
-    const tgweventbus = new events.EventBus(this, 'TGW-Bus-Event', {
+    const tgweventbus = new events.EventBus(this, 'TGW-Event-Bus', {
         eventBusName: 'ATAT-Event-Bus'
       });
       tgweventbus.addToResourcePolicy(new iam.PolicyStatement({

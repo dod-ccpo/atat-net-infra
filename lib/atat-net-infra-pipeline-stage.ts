@@ -1,9 +1,6 @@
 import * as cdk from "aws-cdk-lib";
-import * as pipelines from "aws-cdk-lib/pipelines";
 import { Construct } from "constructs";
-import { GovCloudCompatibilityAspect } from "./aspects/govcloud-compatibility";
-import { AtatContextValue } from "./context-values";
-import { NagSuppressions, NIST80053R4Checks, AwsSolutionsChecks } from 'cdk-nag';
+import { NagSuppressions, NIST80053R4Checks } from 'cdk-nag';
 import { TransitGatewayStack } from './atat-net-infra-tgw';
 import { FirewallVpcStack } from './atat-net-infra-firewall-vpc'
 import { NetworkFirewallRules } from './atat-net-infra-firewall-policy'
@@ -31,7 +28,6 @@ export class NetInfraPipelineStage extends cdk.Stage {
       fwPolicy: atatFirewallPolicyStack.fwPolicy,
       internalRouteTableId: atatTgw.internalRouteTable.ref,
       orgARN: props.orgARN
-
     });
 
     cdk.Aspects.of(atatFirewallVpc).add(new NIST80053R4Checks({ verbose: true }));

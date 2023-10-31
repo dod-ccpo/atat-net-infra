@@ -25,10 +25,6 @@ export class NetInfraPipelineStage extends cdk.Stage {
 
     const atatFirewallPolicyStack = new NetworkFirewallRules(this, 'NetworkFirewallPolicyStack');
 
-    const atatAdditionStack = new SharedCoreStack(this, 'SharedCoreStack', {
-      orgARN: props.orgARN
-    });
-
     const atatFirewallVpc = new FirewallVpcStack(this, 'AtatFirewallVpc', {
       vpcCidr: props.vpcCidr,
       environmentName: props.environmentName,
@@ -36,7 +32,10 @@ export class NetInfraPipelineStage extends cdk.Stage {
       fwPolicy: atatFirewallPolicyStack.fwPolicy,
       internalRouteTableId: atatTgw.internalRouteTable.ref,
       orgARN: props.orgARN
+    });
 
+    const atatAdditionStack = new SharedCoreStack(this, 'SharedCoreStack', {
+      orgARN: props.orgARN
     });
 
     cdk.Aspects.of(atatFirewallVpc).add(new NIST80053R4Checks({ verbose: true }));

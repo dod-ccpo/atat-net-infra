@@ -198,6 +198,21 @@ export class FirewallVpcStack extends cdk.Stack {
             vpcId: this.firewallVpc.vpcId,
         });
 
+        const cfnLoggingConfiguration = new networkfirewall.CfnLoggingConfiguration(this, 'FirewallLoggingConfg', {
+            firewallArn: cfnFirewall.ref,
+            loggingConfiguration: {
+              logDestinationConfigs: [
+                {
+                  logDestination: {
+                    logGroup: fwFlowLogsGroup.logGroupName,
+                  },
+                  logDestinationType: 'CloudWatchLogs',
+                  logType: 'FLOW',
+                },
+              ],
+            },
+        });
+
         /**
         * Custom Resource - Lambda to find network firewall endpoint IDs to use in subnet rouet tables
         *

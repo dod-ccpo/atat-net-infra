@@ -128,11 +128,11 @@ export class FirewallVpcStack extends cdk.Stack {
             ),
           });
 
-        const orgID = props.orgARN.split(":");
+        const orgID = props.orgARN.split("/");
 
         // Event Bus
         const eventbus = new events.EventBus(this, 'TGW-Bus-Event', {
-          eventBusName: 'ATAT-Event-Bus'
+          eventBusName: 'ATAT-TGW-Event-Bus'
         });
         eventbus.addToResourcePolicy(new iam.PolicyStatement({
           sid: 'TransitBusEventPolicy',
@@ -142,7 +142,7 @@ export class FirewallVpcStack extends cdk.Stack {
           resources: [eventbus.eventBusArn],
           conditions: {
             'StringEquals': {
-              'aws:PrincipalOrgID': orgID[5],
+              'aws:PrincipalOrgID': orgID[1],
         },
       },
       }));

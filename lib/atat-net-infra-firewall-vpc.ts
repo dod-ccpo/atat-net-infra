@@ -147,6 +147,17 @@ export class FirewallVpcStack extends cdk.Stack {
       },
       }));
 
+              // Event Rule
+        const rule = new events.Rule(this, 'TGW-Association-rule', {
+        eventPattern: {
+            source: ["aws.ec2"],
+            detail: {
+            'eventName': ['CreateTransitGatewayVpcAttachment']
+            }
+        },
+        eventBus: eventbus
+        });
+
         // 
         // TGW VPC Attachment
         //

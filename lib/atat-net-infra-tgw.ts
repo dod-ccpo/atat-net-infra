@@ -59,6 +59,36 @@ export class TransitGatewayStack extends cdk.Stack {
       }
     );
 
+        const orgID = props.orgARN.split("/");
+
+        // Event Bus
+        const eventbus = new events.EventBus(this, 'TGW-Bus-Event', {
+          eventBusName: 'ATAT-TGW-Event-Bus'
+        });
+        eventbus.addToResourcePolicy(new iam.PolicyStatement({
+          sid: 'TransitBusEventPolicy',
+          effect: iam.Effect.ALLOW,
+          actions: ['events:PutEvents'],
+          principals: [new iam.StarPrincipal()],
+          resources: [eventbus.eventBusArn],
+          conditions: {
+            'StringEquals': {
+              'aws:PrincipalOrgID': orgID[1],
+        },
+      },
+      }));
+
+              // Event Rule
+        const rule = new events.Rule(this, 'TGW-Association-rule', {
+        eventPattern: {
+            source: ["aws.ec2"],
+            detail: {
+            'eventName': ['CreateTransitGatewayVpcAttachment']
+            }
+        },
+        eventBus: eventbus
+        });
+
     // Transit Gateway route table for firewall VPC
     this.firewallRouteTable = new ec2.CfnTransitGatewayRouteTable(
       this,

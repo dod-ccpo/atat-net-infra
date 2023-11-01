@@ -194,19 +194,19 @@ export class FirewallVpcStack extends cdk.Stack {
         // CloudWatch log group for Network Firewall logs
         // 
 
-        const fwFlowLogsGroup = new logs.LogGroup(this, 'FwFlowLogsGroup', {
-            logGroupName: 'NetworkFirewallFlowLogs',
-            retention: logs.RetentionDays.INFINITE
+        // const fwFlowLogsGroup = new logs.LogGroup(this, 'FwFlowLogsGroup', {
+        //     logGroupName: 'NetworkFirewallFlowLogs',
+        //     retention: logs.RetentionDays.INFINITE
 
-        });
+        // });
 
-        NagSuppressions.addResourceSuppressions(
-            fwFlowLogsGroup, [
-            {
-              id: "NIST.800.53.R4-IAMNoInlinePolicy",
-              reason: "CloudWatch logs are encrypted by default",
-            },
-        ]);
+        // NagSuppressions.addResourceSuppressions(
+        //     fwFlowLogsGroup, [
+        //     {
+        //       id: "NIST.800.53.R4-IAMNoInlinePolicy",
+        //       reason: "CloudWatch logs are encrypted by default",
+        //     },
+        // ]);
 
         // 
         // Network Firewall Endpoints

@@ -26,7 +26,7 @@ export interface AtatNetStackProps extends cdk.StackProps {
     tgwId: string;
     fwPolicy: string;
     internalRouteTableId: string;
-    orgARN?: string;
+    orgARN: string;
   }
 export class FirewallVpcStack extends cdk.Stack {
     public readonly firewallVpc: ec2.IVpc;
@@ -128,8 +128,9 @@ export class FirewallVpcStack extends cdk.Stack {
             ),
           });
 
-        // Event Bus
+        const orgID = props.orgARN.split(":");
 
+        // Event Bus
         const eventbus = new events.EventBus(this, 'TGW-Bus-Event', {
           eventBusName: 'ATAT-Event-Bus'
         });
@@ -141,7 +142,7 @@ export class FirewallVpcStack extends cdk.Stack {
           resources: [eventbus.eventBusArn],
           conditions: {
             'StringEquals': {
-              'aws:PrincipalOrgID': props.orgARN,
+              'aws:PrincipalOrgID': orgID[5],
         },
       },
       }));

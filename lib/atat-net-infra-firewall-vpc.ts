@@ -128,7 +128,8 @@ export class FirewallVpcStack extends cdk.Stack {
         ),
         });
 
-    //     // TGW VPC Attachment
+        //     
+        // TGW VPC Attachment
         //
         
         const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
@@ -158,6 +159,21 @@ export class FirewallVpcStack extends cdk.Stack {
             transitGatewayAttachmentId: tgwAttachment.attrId,
             transitGatewayRouteTableId: props.internalRouteTableId,
         });
+
+        // 
+        // CloudWatch log group for Network Firewall logs
+        // 
+        const fwFlowLogsGroup = new logs.LogGroup(this, 'FwFlowLogsGroup', {
+            logGroupName: 'NetworkFirewallFlowLogs',
+            retention: logs.RetentionDays.INFINITE
+        });
+        NagSuppressions.addResourceSuppressions(
+            fwFlowLogsGroup, [
+            {
+              id: "NIST.800.53.R4-IAMNoInlinePolicy",
+              reason: "CloudWatch logs are encrypted by default",
+            },
+        ]);
 
         // 
         // Network Firewall Endpoints

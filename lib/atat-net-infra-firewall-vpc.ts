@@ -128,35 +128,35 @@ export class FirewallVpcStack extends cdk.Stack {
         ),
         });
 
-    //     const orgID = props.orgARN.split("/");
+        const orgID = props.orgARN.split("/");
 
-    //     // Event Bus
-    //     const eventbus = new events.EventBus(this, 'TGW-Bus-Event', {
-    //       eventBusName: 'ATAT-TGW-Event-Bus'
-    //     });
-    //     eventbus.addToResourcePolicy(new iam.PolicyStatement({
-    //       sid: 'TransitBusEventPolicy',
-    //       effect: iam.Effect.ALLOW,
-    //       actions: ['events:PutEvents'],
-    //       principals: [new iam.StarPrincipal()],
-    //       resources: [eventbus.eventBusArn],
-    //       conditions: {
-    //         'StringEquals': {
-    //           'aws:PrincipalOrgID': orgID[1],
-    //     },
-    //   },
-    //   }));
+        // Event Bus
+        const eventbus = new events.EventBus(this, 'TGW-Bus-Event', {
+          eventBusName: 'ATAT-TGW-Event-Bus'
+        });
+        eventbus.addToResourcePolicy(new iam.PolicyStatement({
+          sid: 'TransitBusEventPolicy',
+          effect: iam.Effect.ALLOW,
+          actions: ['events:PutEvents'],
+          principals: [new iam.StarPrincipal()],
+          resources: [eventbus.eventBusArn],
+          conditions: {
+            'StringEquals': {
+              'aws:PrincipalOrgID': orgID[1],
+        },
+      },
+      }));
 
-    //           // Event Rule
-    //     const rule = new events.Rule(this, 'TGW-Association-rule', {
-    //     eventPattern: {
-    //         source: ["aws.ec2"],
-    //         detail: {
-    //         'eventName': ['CreateTransitGatewayVpcAttachment']
-    //         }
-    //     },
-    //     eventBus: eventbus
-    //     });
+              // Event Rule
+        const rule = new events.Rule(this, 'TGW-Association-rule', {
+        eventPattern: {
+            source: ["aws.ec2"],
+            detail: {
+            'eventName': ['CreateTransitGatewayVpcAttachment']
+            }
+        },
+        eventBus: eventbus
+        });
 
         // 
         // TGW VPC Attachment
@@ -194,11 +194,11 @@ export class FirewallVpcStack extends cdk.Stack {
         // CloudWatch log group for Network Firewall logs
         // 
 
-        // const fwFlowLogsGroup = new logs.LogGroup(this, 'FwFlowLogsGroup', {
-        //     logGroupName: 'NetworkFirewallFlowLogs',
-        //     retention: logs.RetentionDays.INFINITE
+        const fwFlowLogsGroup = new logs.LogGroup(this, 'FwFlowLogsGroup', {
+            logGroupName: 'NetworkFirewallFlowLogs',
+            retention: logs.RetentionDays.INFINITE
 
-        // });
+        });
 
         // NagSuppressions.addResourceSuppressions(
         //     fwFlowLogsGroup, [

@@ -12,7 +12,6 @@ import { IpTarget } from "aws-cdk-lib/aws-elasticloadbalancingv2-targets";
 export interface AtatNetStackProps extends cdk.StackProps {
     atatfirewallVpc: FirewallVpcStack;
 }
- 
 
 export class AlbStack extends cdk.Stack {
     public readonly firewallVpc: ec2.IVpc;

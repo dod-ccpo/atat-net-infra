@@ -4,11 +4,13 @@ import { NagSuppressions, NIST80053R4Checks } from 'cdk-nag';
 import { TransitGatewayStack } from './atat-net-infra-tgw';
 import { FirewallVpcStack } from './atat-net-infra-firewall-vpc'
 import { NetworkFirewallRules } from './atat-net-infra-firewall-policy'
+import { AlbStack } from './atat-net-infra-alb';
 
 export interface AtatProps extends cdk.StackProps {
   vpcCidr?: string;
   environmentName: string;
   orgARN: string;
+  apiDomain: string;
 }
 
 export class NetInfraPipelineStage extends cdk.Stage {
@@ -29,6 +31,10 @@ export class NetInfraPipelineStage extends cdk.Stage {
       internalRouteTableId: atatTgw.internalRouteTable.ref,
       orgARN: props.orgARN
     });
+
+    const atatFirewallLoadBalancer = new AlbStack(this, 'AtatALB', {
+      atatfirewallVpc: atatFirewallVpc
+    })
 
     cdk.Aspects.of(atatFirewallVpc).add(new NIST80053R4Checks({ verbose: true }));
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));
@@ -61,4 +67,6 @@ export interface AtatPipelineStackProps extends cdk.StackProps {
   branch: string;
   repository: string;
   githubPatName: string;
+  apiDomain: string;
+  // apiname: string;
 }

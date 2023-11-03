@@ -29,6 +29,13 @@ export class AtatContextValue {
   // Org Id to pass into RAM
   public static readonly ORG_ARN = new AtatContextValue("atat:OrgARN", undefined);
 
+    /**
+   * The custom domain name to use for the created API Gateway API.
+   *
+   * This must be a valid Subject or SAN on the provided ACM certificate.
+   */
+    public static readonly API_DOMAIN_NAME = new AtatContextValue("atat:ApiDomainName", undefined);
+
   /**
    * The GitHub repository that stores the ATAT/HOTH API infrastructure and application code.
    */

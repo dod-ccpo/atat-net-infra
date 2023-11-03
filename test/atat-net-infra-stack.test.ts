@@ -16,7 +16,8 @@ describe("Validate creation of the pipeline stack", () => {
       repository: "test/test",
       branch: TEST_BRANCH_NAME,
       githubPatName: "DOES_NOT_EXIST",
-      orgARN: "Y-56GHT"
+      orgARN: "Y-56GHT",
+      apiDomainName: "hello.world"
     });
     template = Template.fromStack(stack);
   });

@@ -13,6 +13,7 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
   const deployRegion = AtatContextValue.DEPLOY_REGION.resolve(app);
   const branchParam = AtatContextValue.VERSION_CONTROL_BRANCH.resolve(app);
   const orgArn = AtatContextValue.ORG_ARN.resolve(app);
+  const apiDomainParam = AtatContextValue.API_DOMAIN_NAME.resolve(app);
 
 
   if (!utils.isString(environmentParam)) {
@@ -24,6 +25,7 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
 
   const pipelineStack = new AtatPipelineStack(app, 'AtatInfraPipeline', {
     environmentName,
+    apiDomainName: apiDomainParam,
     orgARN: orgArn,
     vpcCidr: vpcCidrParam,
     repository: AtatContextValue.VERSION_CONTROL_REPO.resolve(app),

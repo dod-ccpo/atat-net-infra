@@ -10,7 +10,7 @@ export interface AtatProps extends cdk.StackProps {
   vpcCidr?: string;
   environmentName: string;
   orgARN: string;
-  apiDomain: string;
+  apiDomain?: string;
 }
 
 export class NetInfraPipelineStage extends cdk.Stage {

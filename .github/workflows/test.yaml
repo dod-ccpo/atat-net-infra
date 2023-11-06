@@ -52,6 +52,7 @@
             -c "atat:VpcCidr=10.250.0.0/16"
             -c "atat:VersionControlBranch=main"
             -c "atat:OrgARN=ORG-64537"
+            -c "atat:ApiDomainName=test.dev"
             AtatEnvironmentPipeline/Sandbox
         - name: Gather CloudFormation artifacts
           uses: actions/upload-artifact@v3

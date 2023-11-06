@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as events from 'aws-cdk-lib/aws-events';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
@@ -124,9 +125,39 @@ export class FirewallVpcStack extends cdk.Stack {
             retention: logs.RetentionDays.INFINITE,
             //encryptionKey: 
             })
-
         ),
         });
+
+        // S3 bucket for VCP Flow logs
+        const accessLogsBucket = new s3.Bucket(this, "VPC-Flow-Logs", {
+            encryption: s3.BucketEncryption.S3_MANAGED,
+            enforceSSL: true,
+            blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+            versioned: true,
+            objectLockEnabled: true,
+            objectLockDefaultRetention: s3.ObjectLockRetention.compliance(cdk.Duration.days(365)),
+          });
+
+          this.firewallVpc.addFlowLog("S3FlowLogs", {
+            destination: ec2.FlowLogDestination.toS3(
+                accessLogsBucket
+                )
+            });
+
+        NagSuppressions.addResourceSuppressions(accessLogsBucket, [
+          {
+            id: "NIST.800.53.R4-S3BucketLoggingEnabled",
+            reason: "The ideal bucket for this to log to is itself. That creates complexity with receiving other logs",
+          },
+          {
+            id: "NIST.800.53.R4-S3BucketReplicationEnabled",
+            reason: "Cross region replication is not required for this use case",
+          },
+          {
+            id: "NIST.800.53.R4-S3BucketDefaultLockEnabled",
+            reason: "Server Access Logs cannot be delivered to a bucket with Object Lock enabled",
+          },
+        ]);
 
         //     
         // TGW VPC Attachment

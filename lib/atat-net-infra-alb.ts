@@ -8,9 +8,11 @@ import { NagSuppressions } from "cdk-nag";
 import { FirewallVpcStack } from "./atat-net-infra-firewall-vpc";
 import { aws_elasticloadbalancingv2_targets as elasticloadbalancingv2_targets } from 'aws-cdk-lib';
 import { IpTarget } from "aws-cdk-lib/aws-elasticloadbalancingv2-targets";
+import { ValidationMethod } from "aws-cdk-lib/aws-certificatemanager";
 
 export interface AtatNetStackProps extends cdk.StackProps {
     atatfirewallVpc: FirewallVpcStack;
+    apiDomain: string;
 }
 
 export class AlbStack extends cdk.Stack {
@@ -31,21 +33,25 @@ export class AlbStack extends cdk.Stack {
             objectLockDefaultRetention: s3.ObjectLockRetention.compliance(cdk.Duration.days(365)),
           });
 
-          NagSuppressions.addResourceSuppressions(accessLogsBucket, [
-            {
-              id: "NIST.800.53.R4-S3BucketLoggingEnabled",
-              reason: "The ideal bucket for this to log to is itself. That creates complexity with receiving other logs",
-            },
-            {
-              id: "NIST.800.53.R4-S3BucketReplicationEnabled",
-              reason: "Cross region replication is not required for this use case",
-            },
-            {
-              id: "NIST.800.53.R4-S3BucketDefaultLockEnabled",
-              reason: "Server Access Logs cannot be delivered to a bucket with Object Lock enabled",
-            },
-          ]);
-        
-        
+        NagSuppressions.addResourceSuppressions(accessLogsBucket, [
+          {
+            id: "NIST.800.53.R4-S3BucketLoggingEnabled",
+            reason: "The ideal bucket for this to log to is itself. That creates complexity with receiving other logs",
+          },
+          {
+            id: "NIST.800.53.R4-S3BucketReplicationEnabled",
+            reason: "Cross region replication is not required for this use case",
+          },
+          {
+            id: "NIST.800.53.R4-S3BucketDefaultLockEnabled",
+            reason: "Server Access Logs cannot be delivered to a bucket with Object Lock enabled",
+          },
+        ]);
+
+        const certificate = new acm.Certificate(this, "AlbDomainCertificate", {          
+          domainName: props.apiDomain,
+          validation: acm.CertificateValidation.fromDns()
+          // validation: ValidationMethod.DNS,
+        });
     }
 }

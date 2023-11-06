@@ -10,7 +10,7 @@ export interface AtatProps extends cdk.StackProps {
   vpcCidr?: string;
   environmentName: string;
   orgARN: string;
-  apiDomain?: string;
+  apiDomain: string;
 }
 
 export class NetInfraPipelineStage extends cdk.Stage {
@@ -33,7 +33,8 @@ export class NetInfraPipelineStage extends cdk.Stage {
     });
 
     const atatFirewallLoadBalancer = new AlbStack(this, 'AtatALB', {
-      atatfirewallVpc: atatFirewallVpc
+      atatfirewallVpc: atatFirewallVpc,
+      apiDomain: props.apiDomain
     })
 
     cdk.Aspects.of(atatFirewallVpc).add(new NIST80053R4Checks({ verbose: true }));

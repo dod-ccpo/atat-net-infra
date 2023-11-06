@@ -87,6 +87,8 @@ export class AlbStack extends cdk.Stack {
         deletionProtection: false,
         dropInvalidHeaderFields: true,
         });
+        loadBalancer.logAccessLogs(accessLogsBucket);
+        loadBalancer.setAttribute("routing.http.drop_invalid_header_fields.enabled", "true");
 
       const listener = loadBalancer.addListener('Listener', {
           port: 443,

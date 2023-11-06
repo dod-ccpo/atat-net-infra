@@ -21,37 +21,49 @@ export class AlbStack extends cdk.Stack {
         super(scope, id, props);
         this.templateOptions.description = "Creates the Application Load Balancer in the firewall VPC for inspection of the ATAT transit environment";
 
+        // S3 bucket for ALB access logging
         const accessLogsBucket = new s3.Bucket(this, "LoadBalancerAccessLogs", {
-            // Elastic Load Balancing Log Delivery requires SSE-S3 and _does not_ support
-            // SSE-KMS. This still ensures that log data is encrypted at rest.
-            // Default retention for object lock is 365 days
-            encryption: s3.BucketEncryption.S3_MANAGED,
-            enforceSSL: true,
-            blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-            versioned: true,
-            objectLockEnabled: true,
-            objectLockDefaultRetention: s3.ObjectLockRetention.compliance(cdk.Duration.days(365)),
-          });
-
-        NagSuppressions.addResourceSuppressions(accessLogsBucket, [
-          {
-            id: "NIST.800.53.R4-S3BucketLoggingEnabled",
-            reason: "The ideal bucket for this to log to is itself. That creates complexity with receiving other logs",
-          },
-          {
-            id: "NIST.800.53.R4-S3BucketReplicationEnabled",
-            reason: "Cross region replication is not required for this use case",
-          },
-          {
-            id: "NIST.800.53.R4-S3BucketDefaultLockEnabled",
-            reason: "Server Access Logs cannot be delivered to a bucket with Object Lock enabled",
-          },
-        ]);
-
-        const certificate = new acm.Certificate(this, "AlbDomainCertificate", {          
-          domainName: props.apiDomain,
-          validation: acm.CertificateValidation.fromDns()
-          // validation: ValidationMethod.DNS,
+          // Elastic Load Balancing Log Delivery requires SSE-S3 and _does not_ support
+          // SSE-KMS. This still ensures that log data is encrypted at rest.
+          // Default retention for object lock is 365 days
+          encryption: s3.BucketEncryption.S3_MANAGED,
+          enforceSSL: true,
+          blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+          versioned: true,
+          objectLockEnabled: true,
+          objectLockDefaultRetention: s3.ObjectLockRetention.compliance(cdk.Duration.days(365)),
         });
+
+      NagSuppressions.addResourceSuppressions(accessLogsBucket, [
+        {
+          id: "NIST.800.53.R4-S3BucketLoggingEnabled",
+          reason: "The ideal bucket for this to log to is itself. That creates complexity with receiving other logs",
+        },
+        {
+          id: "NIST.800.53.R4-S3BucketReplicationEnabled",
+          reason: "Cross region replication is not required for this use case",
+        },
+        {
+          id: "NIST.800.53.R4-S3BucketDefaultLockEnabled",
+          reason: "Server Access Logs cannot be delivered to a bucket with Object Lock enabled",
+        },
+      ]);
+
+      // ACM Certificate for ALB
+      const certificate = new acm.Certificate(this, "AlbDomainCertificate", {          
+        domainName: props.apiDomain,
+        validation: acm.CertificateValidation.fromDns()
+      });
+
+      // Target group for ALB
+      const targetGroup = new elbv2.ApplicationTargetGroup(this, "TargetGroup", {
+        vpc: props.atatfirewallVpc.firewallVpc,
+        protocol: elbv2.ApplicationProtocol.HTTPS,
+        targetType: elbv2.TargetType.IP,
+        });
+
+      const addApplicationTargetGroupsProps: elbv2.AddApplicationTargetGroupsProps = {
+          targetGroups: [targetGroup],
+      };
     }
 }

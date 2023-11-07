@@ -89,6 +89,11 @@ export class AlbStack extends cdk.Stack {
         });
         loadBalancer.logAccessLogs(accessLogsBucket);
         loadBalancer.setAttribute("routing.http.drop_invalid_header_fields.enabled", "true");
+        // We're behind NAT so we need to allow this
+        loadBalancer.connections.allowFromAnyIpv4(ec2.Port.tcp(443));
+        // We manually set the targets so we need to allow this
+        // TODO: Fix that in the TargetGroup config?
+        loadBalancer.connections.allowToAnyIpv4(ec2.Port.tcp(443));
 
       const listener = loadBalancer.addListener('Listener', {
           port: 443,

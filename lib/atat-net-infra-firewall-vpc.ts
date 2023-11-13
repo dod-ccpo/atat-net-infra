@@ -88,13 +88,6 @@ export class FirewallVpcStack extends cdk.Stack {
         this.firewallVpc = firewallVpc;
         }
 
-        // NagSuppressions.addResourceSuppressions(this.firewallVpc, [
-        //     {
-        //       id: "NIST.800.53.R4-VPCFlowLogsEnabled",
-        //       reason: "adding vpc flow logs in separate feature/branch, hence this will be removed",
-        //     }
-        //   ]);
-
         this.firewallVpc.addFlowLog("AllFlowLogs", {
         logFormat: [
             ec2.LogFormat.VERSION,

@@ -32,12 +32,10 @@ export class NetInfraPipelineStage extends cdk.Stage {
       orgARN: props.orgARN
     });
 
-    if (props.environmentName === 'Dev') {
-      const atatFirewallLoadBalancer = new AlbStack(this, 'AtatALB', {
-        atatfirewallVpc: atatFirewallVpc,
-        apiDomain: props.apiDomain
-      })
-    }
+    const atatFirewallLoadBalancer = new AlbStack(this, 'AtatALB', {
+      atatfirewallVpc: atatFirewallVpc,
+      apiDomain: props.apiDomain
+    })
 
     cdk.Aspects.of(atatFirewallVpc).add(new NIST80053R4Checks({ verbose: true }));
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));
@@ -71,5 +69,4 @@ export interface AtatPipelineStackProps extends cdk.StackProps {
   repository: string;
   githubPatName: string;
   apiDomain: string;
-  // apiname: string;
 }

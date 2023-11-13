@@ -5,6 +5,7 @@ import { TransitGatewayStack } from './atat-net-infra-tgw';
 import { FirewallVpcStack } from './atat-net-infra-firewall-vpc'
 import { NetworkFirewallRules } from './atat-net-infra-firewall-policy'
 import { AlbStack } from './atat-net-infra-alb';
+import { WebApplicationFirewall } from './atat-net-infra-waf'
 
 export interface AtatProps extends cdk.StackProps {
   vpcCidr?: string;
@@ -36,6 +37,10 @@ export class NetInfraPipelineStage extends cdk.Stage {
       atatfirewallVpc: atatFirewallVpc,
       apiDomain: props.apiDomain
     })
+
+    const atatWebApplicationFirewall = new WebApplicationFirewall(this, 'AtatWaf', {
+      environmentName: props.environmentName,
+    });
 
     cdk.Aspects.of(atatFirewallVpc).add(new NIST80053R4Checks({ verbose: true }));
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));

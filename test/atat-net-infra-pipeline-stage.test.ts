@@ -12,7 +12,7 @@ test("The stack creates successfully with a VPC Firewall defined", () => {
   // WHEN
   const network = new AtatNetFirewall.NetInfraPipelineStage(app, "TestFirewallStack", {
     orgARN: "y-675jgh",
-    environmentName: "TEST",
+    environmentName: "test",
     apiDomain: "hello.world"
   });
 });

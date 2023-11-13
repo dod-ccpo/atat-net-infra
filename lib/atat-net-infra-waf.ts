@@ -11,11 +11,12 @@ export class WebApplicationFirewall extends cdk.Stack {
       super(scope, id, props);
       this.templateOptions.description = "Creates the AWS Web Application Firewall Rules and Web ACL";
       // S3 bucket for WAF access logging
+
       const wafLogsBucket = new s3.Bucket(this, "AtatWafLogs", {
         // Elastic Load Balancing Log Delivery requires SSE-S3 and _does not_ support
         // SSE-KMS. This still ensures that log data is encrypted at rest.
         // Default retention for object lock is 365 days
-        bucketName: `aws-waf-logs-atat-${props.environmentName}`,
+        bucketName: 'aws-waf-logs-' + props.environmentName,
         encryption: s3.BucketEncryption.S3_MANAGED,
         enforceSSL: true,
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,

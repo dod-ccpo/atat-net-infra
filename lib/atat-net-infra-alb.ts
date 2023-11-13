@@ -12,6 +12,7 @@ import { ValidationMethod } from "aws-cdk-lib/aws-certificatemanager";
 
 export interface AtatNetStackProps extends cdk.StackProps {
     atatfirewallVpc: FirewallVpcStack;
+    environmentName?: string;
     apiDomain: string;
 }
 
@@ -56,51 +57,54 @@ export class AlbStack extends cdk.Stack {
       });
 
       // Target group for ALB
-      const targetGroup = new elbv2.ApplicationTargetGroup(this, "TargetGroup", {
-        vpc: props.atatfirewallVpc.firewallVpc,
-        protocol: elbv2.ApplicationProtocol.HTTPS,
-        targetType: elbv2.TargetType.IP,
-        healthCheck: {
-          // Unfortunately, there is not a great way to actually invoke a health route
-          // on the AWS API Gateway because we would need to send some kind of header in
-          // order to successfully hit our API via the endpoint. We would hve to send
-          // either the Host or x-apigw-api-id headers and we can only specify paths.
-          // If we at least get a response and that response is either a 200 or it's a
-          // 403 (which is what API Gateway will return when we've failed to provide the
-          // header), then we should be all good.
-          // TODO: Perhaps mitigate this by closely monitoring the number of 4xx or 5xx
-          // returned from the ALB or if the ALB receives a large number of requests that
-          // never make it to the API Gateway? Other solutions may be available.
-          healthyHttpCodes: "200,403",
-          },
-        });
+      if (props.environmentName === 'Dev') {
+        const targetGroup = new elbv2.ApplicationTargetGroup(this, "TargetGroup", {
+          vpc: props.atatfirewallVpc.firewallVpc,
+          protocol: elbv2.ApplicationProtocol.HTTPS,
+          targetType: elbv2.TargetType.IP,
+          healthCheck: {
+            // Unfortunately, there is not a great way to actually invoke a health route
+            // on the AWS API Gateway because we would need to send some kind of header in
+            // order to successfully hit our API via the endpoint. We would hve to send
+            // either the Host or x-apigw-api-id headers and we can only specify paths.
+            // If we at least get a response and that response is either a 200 or it's a
+            // 403 (which is what API Gateway will return when we've failed to provide the
+            // header), then we should be all good.
+            // TODO: Perhaps mitigate this by closely monitoring the number of 4xx or 5xx
+            // returned from the ALB or if the ALB receives a large number of requests that
+            // never make it to the API Gateway? Other solutions may be available.
+            healthyHttpCodes: "200,403",
+            },
+          });
 
-      const addApplicationTargetGroupsProps: elbv2.AddApplicationTargetGroupsProps = {
-          targetGroups: [targetGroup],
-      };
+        const addApplicationTargetGroupsProps: elbv2.AddApplicationTargetGroupsProps = {
+            targetGroups: [targetGroup],
+        };
 
       // ALB confirguration
-      const loadBalancer = new elbv2.ApplicationLoadBalancer(this, "LoadBalancer", {
-        vpc: props.atatfirewallVpc.firewallVpc,
-        vpcSubnets: { subnetGroupName: 'Alb' },
-        internetFacing: true,
-        deletionProtection: false,
-        dropInvalidHeaderFields: true,
-        });
-        loadBalancer.logAccessLogs(accessLogsBucket);
-        loadBalancer.setAttribute("routing.http.drop_invalid_header_fields.enabled", "true");
-        // We're behind NAT so we need to allow this
-        loadBalancer.connections.allowFromAnyIpv4(ec2.Port.tcp(443));
-        // We manually set the targets so we need to allow this
-        // TODO: Fix that in the TargetGroup config?
-        loadBalancer.connections.allowToAnyIpv4(ec2.Port.tcp(443));
+        const loadBalancer = new elbv2.ApplicationLoadBalancer(this, "LoadBalancer", {
+          vpc: props.atatfirewallVpc.firewallVpc,
+          vpcSubnets: { subnetGroupName: 'Alb' },
+          internetFacing: true,
+          deletionProtection: false,
+          dropInvalidHeaderFields: true,
+          });
+          loadBalancer.logAccessLogs(accessLogsBucket);
+          loadBalancer.setAttribute("routing.http.drop_invalid_header_fields.enabled", "true");
+          // We're behind NAT so we need to allow this
+          loadBalancer.connections.allowFromAnyIpv4(ec2.Port.tcp(443));
+          // We manually set the targets so we need to allow this
+          // TODO: Fix that in the TargetGroup config?
+          loadBalancer.connections.allowToAnyIpv4(ec2.Port.tcp(443));
+      
 
-      const listener = loadBalancer.addListener('Listener', {
-          port: 443,
-          open: true,
-          sslPolicy: elbv2.SslPolicy.FORWARD_SECRECY_TLS12_RES_GCM,
-          certificates: [certificate],
-      });
-      listener.addTargetGroups('VpcEndpointTg', addApplicationTargetGroupsProps )
+        const listener = loadBalancer.addListener('Listener', {
+            port: 443,
+            open: true,
+            sslPolicy: elbv2.SslPolicy.FORWARD_SECRECY_TLS12_RES_GCM,
+            certificates: [certificate],
+        });
+        listener.addTargetGroups('VpcEndpointTg', addApplicationTargetGroupsProps )
+      }
     }
 }

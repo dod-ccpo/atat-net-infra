@@ -20,7 +20,7 @@ export class WebApplicationFirewall extends cdk.Stack {
         // Elastic Load Balancing Log Delivery requires SSE-S3 and _does not_ support
         // SSE-KMS. This still ensures that log data is encrypted at rest.
         // Default retention for object lock is 365 days
-        bucketName: 'aws-waf-logs-atat' + envName,
+        bucketName: 'aws-waf-logs-atat-' + envName,
         encryption: s3.BucketEncryption.S3_MANAGED,
         enforceSSL: true,
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,

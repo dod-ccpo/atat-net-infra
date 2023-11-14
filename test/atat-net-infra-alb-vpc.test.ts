@@ -18,7 +18,7 @@ describe("Validate creation of the ALB stack", () => {
       atatfirewallVpc: firewallstack,
       apiDomain: "hello.world",
       env: {
-        region: "us-gov-west-1",
+        region: "us-reg-north-1",
       },
     });
   });

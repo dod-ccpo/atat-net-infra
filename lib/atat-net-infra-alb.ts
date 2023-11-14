@@ -14,7 +14,7 @@ export interface AtatNetStackProps extends cdk.StackProps {
     atatfirewallVpc: FirewallVpcStack;
     environmentName?: string;
     apiDomain: string;
-}
+} 
 
 export class AlbStack extends cdk.Stack {
     public readonly firewallVpc: ec2.IVpc;

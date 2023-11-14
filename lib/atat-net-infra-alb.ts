@@ -13,7 +13,7 @@ import { ValidationMethod } from "aws-cdk-lib/aws-certificatemanager";
 export interface AtatNetStackProps extends cdk.StackProps {
     atatfirewallVpc: FirewallVpcStack;
     apiDomain: string;
-}
+} 
 
 export class AlbStack extends cdk.Stack {
     public readonly firewallVpc: ec2.IVpc;

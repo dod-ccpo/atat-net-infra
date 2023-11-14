@@ -5,6 +5,7 @@ import { TransitGatewayStack } from './atat-net-infra-tgw';
 import { FirewallVpcStack } from './atat-net-infra-firewall-vpc'
 import { NetworkFirewallRules } from './atat-net-infra-firewall-policy'
 import { AlbStack } from './atat-net-infra-alb';
+import { S3Stack } from './atat-net-test';
 import { WebApplicationFirewall } from './atat-net-infra-waf'
 
 export interface AtatProps extends cdk.StackProps {
@@ -33,10 +34,15 @@ export class NetInfraPipelineStage extends cdk.Stage {
       orgARN: props.orgARN
     });
 
+    // const atatS3Test = new S3Stack(this, 'AtatS3', {
+    //   apiDomain: props.apiDomain
+    // });
+
     const atatFirewallLoadBalancer = new AlbStack(this, 'AtatALB', {
+      environmentName: props.environmentName,
       atatfirewallVpc: atatFirewallVpc,
       apiDomain: props.apiDomain
-    })
+    });
 
     const atatWebApplicationFirewall = new WebApplicationFirewall(this, 'AtatWaf', {
       environmentName: props.environmentName,

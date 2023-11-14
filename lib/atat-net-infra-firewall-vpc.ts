@@ -2,10 +2,8 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as events from 'aws-cdk-lib/aws-events';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs';
-import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as cr from 'aws-cdk-lib/custom-resources';
 import * as path from 'path';
@@ -87,13 +85,6 @@ export class FirewallVpcStack extends cdk.Stack {
         });
         this.firewallVpc = firewallVpc;
         }
-
-        // NagSuppressions.addResourceSuppressions(this.firewallVpc, [
-        //     {
-        //       id: "NIST.800.53.R4-VPCFlowLogsEnabled",
-        //       reason: "adding vpc flow logs in separate feature/branch, hence this will be removed",
-        //     }
-        //   ]);
 
         this.firewallVpc.addFlowLog("AllFlowLogs", {
         logFormat: [

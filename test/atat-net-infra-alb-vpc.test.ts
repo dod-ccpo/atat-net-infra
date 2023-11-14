@@ -1,7 +1,7 @@
 import * as cdk from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
-import { FirewallVpcStack } from "./atat-net-infra-firewall-vpc";
-import * as AlbStack from "./atat-net-infra-alb";
+import { FirewallVpcStack } from "../lib/atat-net-infra-firewall-vpc";
+import { AlbStack}  from "../lib/atat-net-infra-alb";
 describe("Validate creation of the ALB stack", () => {
   test("The stack creates successfully with a ALB & Cert", () => {
     const app = new cdk.App();
@@ -14,9 +14,12 @@ describe("Validate creation of the ALB stack", () => {
         orgARN: "id-78564",
         tgwId: "tgw-8675"
       });
-    const stack = new AlbStack.AlbStack(app, "TestAlbStack", {
+    const loadBalancerstack = new AlbStack(app, "TestAlbStack", {
       atatfirewallVpc: firewallstack,
-      apiDomain: "hello.world"
+      apiDomain: "hello.world",
+      env: {
+        region: "us-gov-west-1",
+      },
     });
   });
 });

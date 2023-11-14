@@ -7,7 +7,7 @@ describe("Validate creation of the ALB stack", () => {
     const app = new cdk.App();
     const firewallstack = new FirewallVpcStack(app, "TestVpcStack", {
         vpcFlowLogBucket: "testbucket",
-        vpcCidr: "6.250.0.0/16",
+        vpcCidr: "100.250.0.0/16",
         internalRouteTableId: "id-6754",
         environmentName: "Dev",
         fwPolicy: "Route-Policy",

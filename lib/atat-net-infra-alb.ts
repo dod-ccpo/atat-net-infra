@@ -105,6 +105,6 @@ export class AlbStack extends cdk.Stack {
             certificates: [certificate],
         });
         listener.addTargetGroups('VpcEndpointTg', addApplicationTargetGroupsProps )
-      }
+      } else {} // add logic for prod and egress vpc at later point
     }
 }

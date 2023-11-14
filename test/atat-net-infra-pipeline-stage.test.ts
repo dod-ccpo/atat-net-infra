@@ -9,10 +9,12 @@ describe("Firewall Stack Test", () => {
 test("The stack creates successfully with a VPC Firewall defined", () => {
   // GIVEN
   const app = new cdk.App();
+  const str = 'dev'
+
   // WHEN
   const network = new AtatNetFirewall.NetInfraPipelineStage(app, "TestFirewallStack", {
     orgARN: "y-675jgh",
-    environmentName: "test",
+    environmentName: str,
     apiDomain: "hello.world"
   });
 });

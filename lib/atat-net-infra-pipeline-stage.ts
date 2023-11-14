@@ -35,10 +35,7 @@ export class NetInfraPipelineStage extends cdk.Stage {
     if (props.environmentName === 'Dev') {
       const atatFirewallLoadBalancer = new AlbStack(this, 'AtatALB', {
         atatfirewallVpc: atatFirewallVpc,
-        apiDomain: props.apiDomain,
-        env: {
-          region: this.region,
-        },
+        apiDomain: props.apiDomain
       })
     }
 

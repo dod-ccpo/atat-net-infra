@@ -13,7 +13,7 @@ import { ValidationMethod } from "aws-cdk-lib/aws-certificatemanager";
 export interface AtatNetStackProps extends cdk.StackProps {
     atatfirewallVpc: FirewallVpcStack;
     apiDomain: string;
-}
+} 
 
 export class AlbStack extends cdk.Stack {
     public readonly firewallVpc: ec2.IVpc;
@@ -87,7 +87,7 @@ export class AlbStack extends cdk.Stack {
         deletionProtection: false,
         dropInvalidHeaderFields: true,
         });
-        loadBalancer.logAccessLogs(accessLogsBucket);
+        // loadBalancer.logAccessLogs(accessLogsBucket);
         loadBalancer.setAttribute("routing.http.drop_invalid_header_fields.enabled", "true");
         // We're behind NAT so we need to allow this
         loadBalancer.connections.allowFromAnyIpv4(ec2.Port.tcp(443));

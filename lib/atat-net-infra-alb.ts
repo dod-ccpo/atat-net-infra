@@ -87,6 +87,7 @@ export class AlbStack extends cdk.Stack {
         deletionProtection: false,
         dropInvalidHeaderFields: true,
         });
+        
         loadBalancer.logAccessLogs(accessLogsBucket);
         loadBalancer.setAttribute("routing.http.drop_invalid_header_fields.enabled", "true");
         // We're behind NAT so we need to allow this

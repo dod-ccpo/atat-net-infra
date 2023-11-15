@@ -20,6 +20,7 @@ export class TransitGatewayStack extends cdk.Stack {
   public readonly internalRouteTable: ec2.CfnTransitGatewayRouteTable
   private readonly firewallRouteTable: ec2.CfnTransitGatewayRouteTable
   public readonly tgwId: string
+  public readonly orgID: string;
 
   constructor(scope: Construct, id: string, props: AtatProps) {
     super(scope, id, props);
@@ -59,36 +60,6 @@ export class TransitGatewayStack extends cdk.Stack {
       }
     );
 
-        const orgID = props.orgARN.split("/");
-
-        // Event Bus
-        const eventbus = new events.EventBus(this, 'TGW-Bus-Event', {
-          eventBusName: 'ATAT-TGW-Event-Bus'
-        });
-        eventbus.addToResourcePolicy(new iam.PolicyStatement({
-          sid: 'TransitBusEventPolicy',
-          effect: iam.Effect.ALLOW,
-          actions: ['events:PutEvents'],
-          principals: [new iam.StarPrincipal()],
-          resources: [eventbus.eventBusArn],
-          conditions: {
-            'StringEquals': {
-              'aws:PrincipalOrgID': orgID[1],
-        },
-      },
-      }));
-
-              // Event Rule
-        const rule = new events.Rule(this, 'TGW-Association-rule', {
-        eventPattern: {
-            source: ["aws.ec2"],
-            detail: {
-            'eventName': ['CreateTransitGatewayVpcAttachment']
-            }
-        },
-        eventBus: eventbus
-        });
-
     // Transit Gateway route table for firewall VPC
     this.firewallRouteTable = new ec2.CfnTransitGatewayRouteTable(
       this,
@@ -117,6 +88,39 @@ export class TransitGatewayStack extends cdk.Stack {
       principals: [orgARN],
       resourceArns: [transitGatewayArn],
     });
+
+    const orgSplit = props.orgARN.split("/");
+    this.orgID = orgSplit[1]
+    
+
+    // // Event Bus for cross account events
+    // const eventbus = new events.EventBus(this, 'TGW-Bus-Event', {
+    //   eventBusName: 'ATAT-TGW-Event-Bus'
+    // });
+    //   eventbus.addToResourcePolicy(new iam.PolicyStatement({
+    //     sid: 'TransitBusEventPolicy',
+    //     effect: iam.Effect.ALLOW,
+    //     actions: ['events:PutEvents'],
+    //     principals: [new iam.StarPrincipal()],
+    //     resources: [eventbus.eventBusArn],
+    //     conditions: {
+    //       'StringEquals': {
+    //         'aws:PrincipalOrgID': orgID[1],
+    //         },
+    //       },
+    //     }));
+
+    // // Event Rule for cross account events
+    // const rule = new events.Rule(this, 'TGW-Association-rule', {
+    //   eventPattern: {
+    //       source: ["aws.ec2"],
+    //       detail: {
+    //       'eventName': ['CreateTransitGatewayVpcAttachment']
+    //       }
+    //   },
+    //   eventBus: eventbus,
+    //   targets: [new targets.LambdaFunction(tgwRouteLambda)],
+    //   });
 
     this.createEventHandling();
   }
@@ -195,5 +199,34 @@ export class TransitGatewayStack extends cdk.Stack {
       eventPattern: eventPattern,
       targets: [new targets.LambdaFunction(tgwRouteLambda)],
     });
+
+    // Event Bus for cross account events
+    const eventbus = new events.EventBus(this, 'TGW-Bus-Event', {
+      eventBusName: 'ATAT-TGW-Event-Bus'
+    });
+      eventbus.addToResourcePolicy(new iam.PolicyStatement({
+        sid: 'TransitBusEventPolicy',
+        effect: iam.Effect.ALLOW,
+        actions: ['events:PutEvents'],
+        principals: [new iam.StarPrincipal()],
+        resources: [eventbus.eventBusArn],
+        conditions: {
+          'StringEquals': {
+            'aws:PrincipalOrgID': this.orgID,
+            },
+          },
+        }));
+
+    // Event Rule for cross account events
+    const rule = new events.Rule(this, 'TGW-Association-rule', {
+      eventPattern: {
+          source: ["aws.ec2"],
+          detail: {
+          'eventName': ['CreateTransitGatewayVpcAttachment']
+          }
+      },
+      eventBus: eventbus,
+      targets: [new targets.LambdaFunction(tgwRouteLambda)],
+      });
   }
 }

@@ -18,12 +18,15 @@ export class NetInfraPipelineStage extends cdk.Stage {
   constructor(scope: Construct, id: string, props: cdk.StageProps & AtatProps ) {
     super(scope, id, props);
 
+    // atat-net-infra-tgw stack
     const atatTgw = new TransitGatewayStack(this, 'AtatTransitGateway', {
       orgARN: props.orgARN
     });
 
+    // atat-net-infra-firewall-policy stack
     const atatFirewallPolicyStack = new NetworkFirewallRules(this, 'NetworkFirewallPolicyStack');
 
+    // atat-net-infra-firewall-vpc stack
     const atatFirewallVpc = new FirewallVpcStack(this, 'AtatFirewallVpc', {
       vpcCidr: props.vpcCidr,
       environmentName: props.environmentName,
@@ -33,10 +36,12 @@ export class NetInfraPipelineStage extends cdk.Stage {
       orgARN: props.orgARN
     });
 
+    // atat-net-infra-waf stack
     const atatWebApplicationFirewall = new WebApplicationFirewall(this, 'AtatWaf', {
       environmentName: props.environmentName,
     });
 
+    // // atat-net-infra-alb stack
     const atatFirewallLoadBalancer = new AlbStack(this, 'AtatALB', {
       environmentName: props.environmentName,
       atatfirewallVpc: atatFirewallVpc,
@@ -47,6 +52,8 @@ export class NetInfraPipelineStage extends cdk.Stage {
     cdk.Aspects.of(atatFirewallVpc).add(new NIST80053R4Checks({ verbose: true }));
     cdk.Aspects.of(atatTgw).add(new NIST80053R4Checks({ verbose: true }));
     cdk.Aspects.of(atatFirewallPolicyStack).add(new NIST80053R4Checks({ verbose: true }));
+    cdk.Aspects.of(atatWebApplicationFirewall).add(new NIST80053R4Checks({ verbose: true }));
+    cdk.Aspects.of(atatFirewallLoadBalancer).add(new NIST80053R4Checks({ verbose: true }));
 
     NagSuppressions.addStackSuppressions(atatFirewallVpc, [
       // This is a temporary supression (hopefully) and we will adopt this as soon as the feature

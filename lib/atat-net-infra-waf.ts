@@ -96,6 +96,14 @@ export class WebApplicationFirewall extends cdk.Stack {
             },
             rules: awsManagedRules.map((wafRule) => wafRule.Rule),
         });
+
+        //Creating WAF ACL Logging
+        const cfnLoggingConfiguration = new wafv2.CfnLoggingConfiguration(this, "AtatWafLogging", {
+              logDestinationConfigs: [wafLogsBucket.bucketArn],
+              resourceArn: webACL.attrArn,
+            }
+        );
+
         } else {} // TODO: add logic for prod and pre prod at later point
     }
 }

@@ -32,6 +32,14 @@ export class WebApplicationFirewall extends cdk.Stack {
         id: "NIST.800.53.R4-S3BucketLoggingEnabled",
         reason: "The ideal bucket for this to log to is itself. That creates complexity with receiving other logs",
     },
+    {
+      id: "NIST.800.53.R4-S3BucketReplicationEnabled",
+      reason: "Cross region replication is not required for this use case",
+    },
+    {
+      id: "NIST.800.53.R4-S3BucketDefaultLockEnabled",
+      reason: "Will add object lock after validating successful log delivery", // TODO: enable object lock
+    },
     ]);
 
     // WAF Configuration

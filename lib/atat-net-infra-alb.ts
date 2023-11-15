@@ -7,9 +7,6 @@ import * as wafv2 from "aws-cdk-lib/aws-wafv2";
 import { Construct } from "constructs";
 import { NagSuppressions } from "cdk-nag";
 import { FirewallVpcStack } from "./atat-net-infra-firewall-vpc";
-import { aws_elasticloadbalancingv2_targets as elasticloadbalancingv2_targets } from 'aws-cdk-lib';
-import { IpTarget } from "aws-cdk-lib/aws-elasticloadbalancingv2-targets";
-import { ValidationMethod } from "aws-cdk-lib/aws-certificatemanager";
 
 export interface AtatNetStackProps extends cdk.StackProps {
     atatfirewallVpc: FirewallVpcStack;
@@ -88,7 +85,7 @@ export class AlbStack extends cdk.Stack {
           vpc: props.atatfirewallVpc.firewallVpc,
           vpcSubnets: { subnetGroupName: 'Alb' },
           internetFacing: true,
-          deletionProtection: false,
+          deletionProtection: true,
           dropInvalidHeaderFields: true,
           });
           loadBalancer.logAccessLogs(accessLogsBucket);

@@ -17,16 +17,14 @@ export class WebApplicationFirewall extends cdk.Stack {
 
       // S3 bucket for WAF access logging
       const wafLogsBucket = new s3.Bucket(this, "AtatWafLogs", {
-        // Elastic Load Balancing Log Delivery requires SSE-S3 and _does not_ support
-        // SSE-KMS. This still ensures that log data is encrypted at rest.
+        // AWS WAF Log Delivery requires SSE-S3 
+        // This still ensures that log data is encrypted at rest.
         // Default retention for object lock is 365 days
         bucketName: 'aws-waf-logs-atat-' + envName,
         encryption: s3.BucketEncryption.S3_MANAGED,
         enforceSSL: true,
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
         versioned: true,
-        objectLockEnabled: true,
-        objectLockDefaultRetention: s3.ObjectLockRetention.compliance(cdk.Duration.days(365)),
       });
     NagSuppressions.addResourceSuppressions(wafLogsBucket, [
     {
@@ -35,6 +33,69 @@ export class WebApplicationFirewall extends cdk.Stack {
     },
     ]);
 
+    // WAF Configuration
+    if (props.environmentName === 'Dev') {
 
+        //Creating Rules for WAF
+        interface WafRule {
+            Rule: wafv2.CfnWebACL.RuleProperty;
+        }
+
+        const awsManagedRules: WafRule[] = [
+            {
+                // Common Rule Set aligns with major portions of OWASP Core Rule Set
+                Rule: {
+                    name: "AWS-AWSManagedRulesCommonRuleSet",
+                    priority: 2,
+                    statement: {
+                    managedRuleGroupStatement: {
+                        vendorName: "AWS",
+                        name: "AWSManagedRulesCommonRuleSet",
+                    },
+                    },
+                    overrideAction: {
+                    none: {},
+                    },
+                    visibilityConfig: {
+                    sampledRequestsEnabled: true,
+                    cloudWatchMetricsEnabled: true,
+                    metricName: "AWS-AWSManagedRulesCommonRuleSet",
+                    },
+                },
+            },
+            {
+                // AWS IP Reputation list includes known malicious actors/bots and is regularly updated
+                Rule: {
+                    name: 'AWS-AWSManagedRulesAmazonIpReputationList',
+                    priority: 10,
+                    statement: {
+                        managedRuleGroupStatement: {
+                        vendorName: 'AWS',
+                        name: 'AWSManagedRulesAmazonIpReputationList',
+                        },
+                    },
+                    overrideAction: {
+                        none: {},
+                    },
+                    visibilityConfig: {
+                        sampledRequestsEnabled: true,
+                        cloudWatchMetricsEnabled: true,
+                        metricName: 'AWSManagedRulesAmazonIpReputationList',
+                    },
+                    },
+                },
+            ]
+        //Creating WebACL for WAF
+        const webACL = new wafv2.CfnWebACL(this, "AtatWebACL", {
+            defaultAction: { allow: {} },
+            scope: "REGIONAL",
+            visibilityConfig: {
+            cloudWatchMetricsEnabled: true,
+            metricName: "WebACLCDK-Metric",
+            sampledRequestsEnabled: true,
+            },
+            rules: awsManagedRules.map((wafRule) => wafRule.Rule),
+        });
+        } else {} // TODO: add logic for prod and pre prod at later point
     }
 }

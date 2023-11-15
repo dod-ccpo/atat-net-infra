@@ -9,6 +9,7 @@ export interface AtatProps extends cdk.StackProps {
   environmentName: string;
 }
 export class WebApplicationFirewall extends cdk.Stack {
+    public readonly webACL: string;
     constructor(scope: Construct, id: string, props: cdk.StageProps & AtatProps) {
       super(scope, id, props);
       this.templateOptions.description = "Creates the AWS Web Application Firewall Rules and Web ACL";
@@ -96,6 +97,7 @@ export class WebApplicationFirewall extends cdk.Stack {
             },
             rules: awsManagedRules.map((wafRule) => wafRule.Rule),
         });
+        this.webACL = webACL.attrArn
 
         //Creating WAF ACL Logging
         const cfnLoggingConfiguration = new wafv2.CfnLoggingConfiguration(this, "AtatWafLogging", {

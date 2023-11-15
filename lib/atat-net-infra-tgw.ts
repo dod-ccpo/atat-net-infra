@@ -91,36 +91,6 @@ export class TransitGatewayStack extends cdk.Stack {
 
     const orgSplit = props.orgARN.split("/");
     this.orgID = orgSplit[1]
-    
-
-    // // Event Bus for cross account events
-    // const eventbus = new events.EventBus(this, 'TGW-Bus-Event', {
-    //   eventBusName: 'ATAT-TGW-Event-Bus'
-    // });
-    //   eventbus.addToResourcePolicy(new iam.PolicyStatement({
-    //     sid: 'TransitBusEventPolicy',
-    //     effect: iam.Effect.ALLOW,
-    //     actions: ['events:PutEvents'],
-    //     principals: [new iam.StarPrincipal()],
-    //     resources: [eventbus.eventBusArn],
-    //     conditions: {
-    //       'StringEquals': {
-    //         'aws:PrincipalOrgID': orgID[1],
-    //         },
-    //       },
-    //     }));
-
-    // // Event Rule for cross account events
-    // const rule = new events.Rule(this, 'TGW-Association-rule', {
-    //   eventPattern: {
-    //       source: ["aws.ec2"],
-    //       detail: {
-    //       'eventName': ['CreateTransitGatewayVpcAttachment']
-    //       }
-    //   },
-    //   eventBus: eventbus,
-    //   targets: [new targets.LambdaFunction(tgwRouteLambda)],
-    //   });
 
     this.createEventHandling();
   }

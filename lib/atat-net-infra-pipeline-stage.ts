@@ -33,14 +33,15 @@ export class NetInfraPipelineStage extends cdk.Stage {
       orgARN: props.orgARN
     });
 
+    const atatWebApplicationFirewall = new WebApplicationFirewall(this, 'AtatWaf', {
+      environmentName: props.environmentName,
+    });
+
     const atatFirewallLoadBalancer = new AlbStack(this, 'AtatALB', {
       environmentName: props.environmentName,
       atatfirewallVpc: atatFirewallVpc,
-      apiDomain: props.apiDomain
-    });
-
-    const atatWebApplicationFirewall = new WebApplicationFirewall(this, 'AtatWaf', {
-      environmentName: props.environmentName,
+      apiDomain: props.apiDomain,
+      webACL: atatWebApplicationFirewall.webACL,
     });
 
     cdk.Aspects.of(atatFirewallVpc).add(new NIST80053R4Checks({ verbose: true }));

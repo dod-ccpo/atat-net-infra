@@ -119,7 +119,7 @@ export class AlbStack extends cdk.Stack {
             });
       
             albeventbus.addToResourcePolicy(new iam.PolicyStatement({
-              sid: 'TransitBusEventPolicy',
+              sid: 'TransitALBBusEventPolicy',
               effect: iam.Effect.ALLOW,
               actions: ['events:PutEvents'],
               principals: [new iam.StarPrincipal()],

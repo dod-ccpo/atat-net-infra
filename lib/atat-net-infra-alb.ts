@@ -24,7 +24,8 @@ export interface AtatNetStackProps extends cdk.StackProps {
 
 export class AlbStack extends cdk.Stack {
     public readonly firewallVpc: ec2.IVpc;
-    targetGroup: cdk.aws_elasticloadbalancingv2.ApplicationTargetGroup;
+    public readonly targetGroupArn: string;
+    // targetGroup: cdk.aws_elasticloadbalancingv2.ApplicationTargetGroup;
     constructor(scope: Construct, id: string, props: AtatNetStackProps) {
         super(scope, id, props);
         this.templateOptions.description = "Creates the Application Load Balancer in the firewall VPC for inspection of the ATAT transit environment";
@@ -83,7 +84,7 @@ export class AlbStack extends cdk.Stack {
             healthyHttpCodes: "200,403",
             },
           });
-        this.targetGroup = targetGroup
+        this.targetGroupArn = targetGroup.targetGroupArn
 
         const addApplicationTargetGroupsProps: elbv2.AddApplicationTargetGroupsProps = {
             targetGroups: [targetGroup],
@@ -119,7 +120,7 @@ export class AlbStack extends cdk.Stack {
           resourceArn:loadBalancer.loadBalancerArn,
           webAclArn: props.webACL,
         });
-      } else {} // TODO: add logic for prod and egress vpc at later point
+      } else {} // TODO: add logic for prod and egress vpc at later point..
 
       // Role for Alb Event Lambda
       const albLambdaRole = new iam.Role(this, 'AlbLambdaRole', {
@@ -165,7 +166,7 @@ export class AlbStack extends cdk.Stack {
         role: albLambdaRole,
         timeout: cdk.Duration.seconds(120),
         environment: {
-          targetGroupArn: this.targetGroup.targetGroupArn,
+          targetGroupArn: this.targetGroupArn,
         }
       });
   

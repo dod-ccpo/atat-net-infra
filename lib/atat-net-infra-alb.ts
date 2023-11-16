@@ -5,6 +5,7 @@ import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as events from "aws-cdk-lib/aws-events";
+import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as wafv2 from "aws-cdk-lib/aws-wafv2";
 import * as path from 'path';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
@@ -120,6 +121,7 @@ export class AlbStack extends cdk.Stack {
         });
       } else {} // TODO: add logic for prod and egress vpc at later point
 
+      // Role for Alb Event Lambda
       const albLambdaRole = new iam.Role(this, 'AlbLambdaRole', {
         assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
         managedPolicies: [
@@ -203,9 +205,8 @@ export class AlbStack extends cdk.Stack {
         source: ["event.sender.source"],
       },
       eventBus: albeventbus,
+      targets: [new targets.LambdaFunction(albLambda)],
     });
-    // targets: [targets.EventBus.bind(props.eventbus)],
-    // eventrule.addTarget(new targets.EventBus(events.EventBus.fromEventBusArn(this, "External", props.eventbus)));
     
     }
 }

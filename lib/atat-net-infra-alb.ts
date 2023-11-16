@@ -3,17 +3,16 @@ import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import * as s3 from "aws-cdk-lib/aws-s3";
+import * as wafv2 from "aws-cdk-lib/aws-wafv2";
 import { Construct } from "constructs";
 import { NagSuppressions } from "cdk-nag";
 import { FirewallVpcStack } from "./atat-net-infra-firewall-vpc";
-import { aws_elasticloadbalancingv2_targets as elasticloadbalancingv2_targets } from 'aws-cdk-lib';
-import { IpTarget } from "aws-cdk-lib/aws-elasticloadbalancingv2-targets";
-import { ValidationMethod } from "aws-cdk-lib/aws-certificatemanager";
 
 export interface AtatNetStackProps extends cdk.StackProps {
     atatfirewallVpc: FirewallVpcStack;
     environmentName?: string;
     apiDomain: string;
+    webACL: string;
 } 
 
 export class AlbStack extends cdk.Stack {
@@ -86,7 +85,7 @@ export class AlbStack extends cdk.Stack {
           vpc: props.atatfirewallVpc.firewallVpc,
           vpcSubnets: { subnetGroupName: 'Alb' },
           internetFacing: true,
-          deletionProtection: false,
+          deletionProtection: true,
           dropInvalidHeaderFields: true,
           });
           loadBalancer.logAccessLogs(accessLogsBucket);
@@ -105,6 +104,11 @@ export class AlbStack extends cdk.Stack {
             certificates: [certificate],
         });
         listener.addTargetGroups('VpcEndpointTg', addApplicationTargetGroupsProps )
+
+        const cfnWebACLAssociation = new wafv2.CfnWebACLAssociation(this,'CdkWebACLAssociation', {
+          resourceArn:loadBalancer.loadBalancerArn,
+          webAclArn: props.webACL,
+        });
       } else {} // TODO: add logic for prod and egress vpc at later point
     }
 }

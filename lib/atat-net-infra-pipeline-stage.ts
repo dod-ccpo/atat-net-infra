@@ -36,7 +36,8 @@ export class NetInfraPipelineStage extends cdk.Stage {
     const atatFirewallLoadBalancer = new AlbStack(this, 'AtatALB', {
       environmentName: props.environmentName,
       atatfirewallVpc: atatFirewallVpc,
-      apiDomain: props.apiDomain
+      apiDomain: props.apiDomain,
+      orgARN: props.orgARN
     });
 
     const atatWebApplicationFirewall = new WebApplicationFirewall(this, 'AtatWaf', {

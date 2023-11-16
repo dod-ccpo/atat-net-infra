@@ -3,6 +3,8 @@ import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import * as s3 from "aws-cdk-lib/aws-s3";
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as events from "aws-cdk-lib/aws-events";
 import { Construct } from "constructs";
 import { NagSuppressions } from "cdk-nag";
 import { FirewallVpcStack } from "./atat-net-infra-firewall-vpc";
@@ -14,6 +16,7 @@ export interface AtatNetStackProps extends cdk.StackProps {
     atatfirewallVpc: FirewallVpcStack;
     environmentName?: string;
     apiDomain: string;
+    orgARN: string;
 } 
 
 export class AlbStack extends cdk.Stack {
@@ -105,6 +108,36 @@ export class AlbStack extends cdk.Stack {
             certificates: [certificate],
         });
         listener.addTargetGroups('VpcEndpointTg', addApplicationTargetGroupsProps )
-      } else {} // TODO: add logic for prod and egress vpc at later point
+      } else {} 
+      
+      // TODO: add logic for prod and egress vpc at later point
+      const albeventbus = new events.EventBus(this, 'TGW-Bus-Event', {
+        eventBusName: 'ATAT-Event-Bus'
+      });
+
+      albeventbus.addToResourcePolicy(new iam.PolicyStatement({
+        sid: 'TransitBusEventPolicy',
+        effect: iam.Effect.ALLOW,
+        actions: ['events:PutEvents'],
+        principals: [new iam.StarPrincipal()],
+        resources: [albeventbus.eventBusArn],
+        conditions: {
+          'StringEquals': {
+            'aws:PrincipalOrgID': props.orgARN,
+      },
+    },}
+    ));
+
+      const albeventrule = new events.Rule(this, "TGW-Association-rule", {
+        eventPattern: {
+          source: ["event.sender.source"],
+          detail: {
+            eventName: ["EventA.Sent"],
+          },
+        },
+        eventBus: albeventbus,
+      });
+      // targets: [targets.EventBus.bind(props.eventbus)],
+      // eventrule.addTarget(new targets.EventBus(events.EventBus.fromEventBusArn(this, "External", props.eventbus)));
     }
 }

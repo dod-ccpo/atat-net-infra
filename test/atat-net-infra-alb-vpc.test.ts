@@ -16,6 +16,7 @@ describe("Validate creation of the ALB stack", () => {
       });
     const loadBalancerstack = new AlbStack(app, "TestAlbStack", {
       atatfirewallVpc: firewallstack,
+      orgARN: "test-5674",
       apiDomain: "hello.world",
       env: {
         region: "us-reg-north-1",

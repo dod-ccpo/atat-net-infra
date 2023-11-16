@@ -114,8 +114,8 @@ export class AlbStack extends cdk.Stack {
       } else {} // TODO: add logic for prod and egress vpc at later point
 
             // TODO: add logic for prod and egress vpc at later point
-            const albeventbus = new events.EventBus(this, 'TGW-Bus-Event', {
-              eventBusName: 'ATAT-Event-Bus'
+            const albeventbus = new events.EventBus(this, 'ALB-Bus-Event', {
+              eventBusName: 'ATAT-ALB-Event-Bus'
             });
       
             albeventbus.addToResourcePolicy(new iam.PolicyStatement({

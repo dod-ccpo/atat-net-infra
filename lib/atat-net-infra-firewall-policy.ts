@@ -11,10 +11,7 @@ export class NetworkFirewallRules extends cdk.Stack {
     this.templateOptions.description = "Creates the AWS Network Firewall Policy, Rule Group and Rules for ATAT AWS Network Firewall";
 
     // Network Firewall Stateless Rule Group
-    const fwAllowStatelessRuleGroup = new networkfirewall.CfnRuleGroup(
-      this,
-      'fwAllowStatelessRuleGroup',
-      {
+    const fwAllowStatelessRuleGroup = new networkfirewall.CfnRuleGroup(this,'fwAllowStatelessRuleGroup', {
         capacity: 10,
         ruleGroupName: 'AllowStateless',
         type: 'STATELESS',
@@ -45,14 +42,10 @@ export class NetworkFirewallRules extends cdk.Stack {
             },
           },
         },
-      }
-    );
+    });
 
     // Network Firewall Stateful Rule Group for allow rules
-    const fwAllowRuleGroup = new networkfirewall.CfnRuleGroup(
-      this,
-      'fwAllowRuleGroup',
-      {
+    const fwAllowRuleGroup = new networkfirewall.CfnRuleGroup(this, 'fwAllowRuleGroup', {
         capacity: 10,
         ruleGroupName: 'AllowRules',
         type: 'STATEFUL',
@@ -94,14 +87,10 @@ export class NetworkFirewallRules extends cdk.Stack {
             ],
           },
         },
-      }
-    );
+      });
 
     // Network Firewall Stateful Rule Group to deny all traffic not matching an allow rule
-    const fwDenyRuleGroup = new networkfirewall.CfnRuleGroup(
-      this,
-      'fwDenyRuleGroup',
-      {
+    const fwDenyRuleGroup = new networkfirewall.CfnRuleGroup(this, 'fwDenyRuleGroup', {
         capacity: 10,
         ruleGroupName: 'DenyAll',
         type: 'STATEFUL',
@@ -128,8 +117,7 @@ export class NetworkFirewallRules extends cdk.Stack {
             ],
           },
         },
-      }
-    );
+      });
 
     // Network Firewall Policy referencing the above rule groups
     const fwPolicy = new networkfirewall.CfnFirewallPolicy(this, 'FwPolicy', {

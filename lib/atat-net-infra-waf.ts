@@ -9,6 +9,7 @@ export interface AtatProps extends cdk.StackProps {
   environmentName: string;
 }
 export class WebApplicationFirewall extends cdk.Stack {
+    public readonly webACL: string;
     constructor(scope: Construct, id: string, props: cdk.StageProps & AtatProps) {
       super(scope, id, props);
       this.templateOptions.description = "Creates the AWS Web Application Firewall Rules and Web ACL";
@@ -30,6 +31,14 @@ export class WebApplicationFirewall extends cdk.Stack {
     {
         id: "NIST.800.53.R4-S3BucketLoggingEnabled",
         reason: "The ideal bucket for this to log to is itself. That creates complexity with receiving other logs",
+    },
+    {
+      id: "NIST.800.53.R4-S3BucketReplicationEnabled",
+      reason: "Cross region replication is not required for this use case",
+    },
+    {
+      id: "NIST.800.53.R4-S3BucketDefaultLockEnabled",
+      reason: "Will add object lock after validating successful log delivery", // TODO: enable object lock
     },
     ]);
 
@@ -96,6 +105,7 @@ export class WebApplicationFirewall extends cdk.Stack {
             },
             rules: awsManagedRules.map((wafRule) => wafRule.Rule),
         });
+        this.webACL = webACL.attrArn
 
         //Creating WAF ACL Logging
         const cfnLoggingConfiguration = new wafv2.CfnLoggingConfiguration(this, "AtatWafLogging", {

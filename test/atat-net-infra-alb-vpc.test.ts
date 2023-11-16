@@ -18,6 +18,7 @@ describe("Validate creation of the ALB stack", () => {
       atatfirewallVpc: firewallstack,
       orgARN: "test-5674",
       apiDomain: "hello.world",
+      webACL: "atatWebApplicationFirewall",
       env: {
         region: "us-reg-north-1",
       },

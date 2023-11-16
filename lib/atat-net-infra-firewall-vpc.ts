@@ -150,10 +150,7 @@ export class FirewallVpcStack extends cdk.Stack {
           },
         ]);
 
-        //     
-        // TGW VPC Attachment
-        //
-        
+        // TGW VPC Attachment        
         const tgwAttachment = new ec2.CfnTransitGatewayAttachment(this, 'tgwAttachment', {
             transitGatewayId: props.tgwId,
             subnetIds: this.firewallVpc.selectSubnets({
@@ -172,19 +169,14 @@ export class FirewallVpcStack extends cdk.Stack {
             }
         );
 
-        // 
         // Default route in  internal TGW Route Table pointing to firewall vpc attachment
-        // 
-
         const defaultRouteTgw = new ec2.CfnTransitGatewayRoute(this, 'TGWRoute', {
             destinationCidrBlock: '0.0.0.0/0',
             transitGatewayAttachmentId: tgwAttachment.attrId,
             transitGatewayRouteTableId: props.internalRouteTableId,
         });
 
-        // 
         // CloudWatch log group for Network Firewall logs
-        // 
         const fwFlowLogsGroup = new logs.LogGroup(this, 'FwFlowLogsGroup', {
             logGroupName: 'NetworkFirewallFlowLogs',
             retention: logs.RetentionDays.INFINITE
@@ -197,10 +189,7 @@ export class FirewallVpcStack extends cdk.Stack {
             },
         ]);
 
-        // 
         // Network Firewall Endpoints
-        // 
-  
         const firewallSubnets = this.firewallVpc.selectSubnets({
             subnetGroupName: 'Firewall',
         });
@@ -220,6 +209,7 @@ export class FirewallVpcStack extends cdk.Stack {
             vpcId: this.firewallVpc.vpcId,
         });
 
+        // Network Firewall Logging
         const cfnLoggingConfiguration = new networkfirewall.CfnLoggingConfiguration(this, 'FirewallLoggingConfg', {
             firewallArn: cfnFirewall.ref,
             loggingConfiguration: {

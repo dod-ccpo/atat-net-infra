@@ -46,10 +46,7 @@ export class TransitGatewayStack extends cdk.Stack {
     this.tgwId = this.transitGateway.attrId
 
     // Transit Gateway route table for spoke VPCs
-    this.internalRouteTable = new ec2.CfnTransitGatewayRouteTable(
-      this,
-      'InternalRouteTable',
-      {
+    this.internalRouteTable = new ec2.CfnTransitGatewayRouteTable(this, 'InternalRouteTable', {
         transitGatewayId: this.transitGateway.attrId,
         tags: [
           {
@@ -61,10 +58,7 @@ export class TransitGatewayStack extends cdk.Stack {
     );
 
     // Transit Gateway route table for firewall VPC
-    this.firewallRouteTable = new ec2.CfnTransitGatewayRouteTable(
-      this,
-      'firewallRouteTable',
-      {
+    this.firewallRouteTable = new ec2.CfnTransitGatewayRouteTable(this, 'firewallRouteTable', {
         transitGatewayId: this.transitGateway.attrId,
         tags: [
           {

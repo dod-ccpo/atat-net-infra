@@ -46,6 +46,7 @@ export class NetInfraPipelineStage extends cdk.Stage {
       environmentName: props.environmentName,
       atatfirewallVpc: atatFirewallVpc,
       apiDomain: props.apiDomain,
+      orgARN: props.orgARN,
       webACL: atatWebApplicationFirewall.webACL,
     });
 

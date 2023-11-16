@@ -3,6 +3,8 @@ import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import * as s3 from "aws-cdk-lib/aws-s3";
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as events from "aws-cdk-lib/aws-events";
 import * as wafv2 from "aws-cdk-lib/aws-wafv2";
 import { Construct } from "constructs";
 import { NagSuppressions } from "cdk-nag";
@@ -12,6 +14,7 @@ export interface AtatNetStackProps extends cdk.StackProps {
     atatfirewallVpc: FirewallVpcStack;
     environmentName?: string;
     apiDomain: string;
+    orgARN: string;
     webACL: string;
 } 
 
@@ -104,11 +107,43 @@ export class AlbStack extends cdk.Stack {
             certificates: [certificate],
         });
         listener.addTargetGroups('VpcEndpointTg', addApplicationTargetGroupsProps )
-
         const cfnWebACLAssociation = new wafv2.CfnWebACLAssociation(this,'CdkWebACLAssociation', {
           resourceArn:loadBalancer.loadBalancerArn,
           webAclArn: props.webACL,
         });
       } else {} // TODO: add logic for prod and egress vpc at later point
+
+            // TODO: add logic for prod and egress vpc at later point
+            const albeventbus = new events.EventBus(this, 'ALB-Bus-Event', {
+              eventBusName: 'ATAT-ALB-Event-Bus'
+            });
+
+            const orgSplit = props.orgARN.split("/");
+            const orgID = orgSplit[1]
+      
+            albeventbus.addToResourcePolicy(new iam.PolicyStatement({
+              sid: 'TransitALBBusEventPolicy',
+              effect: iam.Effect.ALLOW,
+              actions: ['events:PutEvents'],
+              principals: [new iam.StarPrincipal()],
+              resources: [albeventbus.eventBusArn],
+              conditions: {
+                'StringEquals': {
+                  'aws:PrincipalOrgID': orgID,
+            },
+          },}
+          ));
+      
+            const albeventrule = new events.Rule(this, "ALB-IP-TargetGroup-rule", {
+              eventPattern: {
+                source: ["event.sender.source"],
+                detail: {
+                  eventName: ["EventA.Sent"],
+                },
+              },
+              eventBus: albeventbus,
+            });
+            // targets: [targets.EventBus.bind(props.eventbus)],
+            // eventrule.addTarget(new targets.EventBus(events.EventBus.fromEventBusArn(this, "External", props.eventbus)));
     }
 }

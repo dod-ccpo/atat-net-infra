@@ -155,8 +155,8 @@ export class AlbStack extends cdk.Stack {
       ]);
   
       // Lambda function as trigger to event for ALB register targets
-      const albLambda = new NodejsFunction(this, 'TGWAttachmentFunction', {
-        description: 'Lambda function as trigger to event for TGW route table association',
+      const albLambda = new NodejsFunction(this, 'ALBFunction', {
+        description: 'Lambda function as trigger to event for ALB Register Targets ',
         entry: path.join(__dirname, 'lambda/alb/index.ts'),
         runtime: lambda.Runtime.NODEJS_18_X,
         handler: 'handler',

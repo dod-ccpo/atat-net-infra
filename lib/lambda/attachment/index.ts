@@ -60,32 +60,32 @@ export const handler = async (event: any) => {
        await waitAvailable(attachmentID);
     };
 
-    // Disassociate the attachment if already attached
-    if (tgwAttachments.TransitGatewayAttachments[0].Association !== undefined) {
-        const routeTableID = tgwAttachments.TransitGatewayAttachments[0].Association?.TransitGatewayRouteTableId
+    // // Disassociate the attachment if already attached
+    // if (tgwAttachments.TransitGatewayAttachments[0].Association !== undefined) {
+    //     const routeTableID = tgwAttachments.TransitGatewayAttachments[0].Association?.TransitGatewayRouteTableId
 
-        const disassociateCommand = new DisassociateTransitGatewayRouteTableCommand({
-            TransitGatewayAttachmentId: attachmentID,
-            TransitGatewayRouteTableId: routeTableID,
-        });
+    //     const disassociateCommand = new DisassociateTransitGatewayRouteTableCommand({
+    //         TransitGatewayAttachmentId: attachmentID,
+    //         TransitGatewayRouteTableId: routeTableID,
+    //     });
 
-        let associated = true;
-        while (associated) {
-            // Disassociate attachment
-            await ec2Client.send(disassociateCommand);
+    //     let associated = true;
+    //     while (associated) {
+    //         // Disassociate attachment
+    //         await ec2Client.send(disassociateCommand);
 
-            // Wait for attachment to get disassociated
-            await setTimeout(2000);
+    //         // Wait for attachment to get disassociated
+    //         await setTimeout(2000);
 
-            let attachments = await ec2Client.send(describeAttachmentCommand);
+    //         let attachments = await ec2Client.send(describeAttachmentCommand);
             
-            if (attachments.TransitGatewayAttachments) {
-                if (attachments.TransitGatewayAttachments[0].Association == undefined) {
-                    associated = false;
-                };
-            };
-        };
-    }
+    //         if (attachments.TransitGatewayAttachments) {
+    //             if (attachments.TransitGatewayAttachments[0].Association == undefined) {
+    //                 associated = false;
+    //             };
+    //         };
+    //     };
+    // }
 
     //associate attachment with correct route table
     const attachCommand = new AssociateTransitGatewayRouteTableCommand({

@@ -45,7 +45,7 @@ export const handler = async (event: any) => {
     // if (vpcType == "internal" && process.env.internalRouteTableID) {
     //     associationRouteTableID = process.env.intenalRouteTableID
     // } else associationRouteTableID = process.env.firewallRouteTableID
-    
+
     const describeAttachmentCommand = new DescribeTransitGatewayAttachmentsCommand({
         TransitGatewayAttachmentIds: [attachmentID]
     });
@@ -59,33 +59,6 @@ export const handler = async (event: any) => {
     if (tgwAttachments.TransitGatewayAttachments[0].State == 'pending') {
        await waitAvailable(attachmentID);
     };
-
-    // // Disassociate the attachment if already attached
-    // if (tgwAttachments.TransitGatewayAttachments[0].Association !== undefined) {
-    //     const routeTableID = tgwAttachments.TransitGatewayAttachments[0].Association?.TransitGatewayRouteTableId
-
-    //     const disassociateCommand = new DisassociateTransitGatewayRouteTableCommand({
-    //         TransitGatewayAttachmentId: attachmentID,
-    //         TransitGatewayRouteTableId: routeTableID,
-    //     });
-
-    //     let associated = true;
-    //     while (associated) {
-    //         // Disassociate attachment
-    //         await ec2Client.send(disassociateCommand);
-
-    //         // Wait for attachment to get disassociated
-    //         await setTimeout(2000);
-
-    //         let attachments = await ec2Client.send(describeAttachmentCommand);
-            
-    //         if (attachments.TransitGatewayAttachments) {
-    //             if (attachments.TransitGatewayAttachments[0].Association == undefined) {
-    //                 associated = false;
-    //             };
-    //         };
-    //     };
-    // }
 
     //associate attachment with correct route table
     const attachCommand = new AssociateTransitGatewayRouteTableCommand({

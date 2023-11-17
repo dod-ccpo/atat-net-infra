@@ -88,6 +88,7 @@ export const handler = async (event: any) => {
     // }
 
     //associate attachment with correct route table
+    if (vpcType == "jesse-test") {
     const attachCommand = new AssociateTransitGatewayRouteTableCommand({
         TransitGatewayAttachmentId: attachmentID,
         TransitGatewayRouteTableId: associationRouteTableID,
@@ -95,7 +96,8 @@ export const handler = async (event: any) => {
 
     await ec2Client.send(attachCommand);
 
-    if (vpcType == "jesse-test") {
+    //propagate attachment with correct route table
+    //if (vpcType == "jesse-test") {
         await ec2Client.send(new EnableTransitGatewayRouteTablePropagationCommand({
             TransitGatewayRouteTableId: process.env.inspectionRouteTableID,
             TransitGatewayAttachmentId: attachmentID,

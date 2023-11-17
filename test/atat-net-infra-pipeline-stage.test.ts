@@ -6,7 +6,7 @@ import * as AtatNetFirewall from "../lib/atat-net-infra-pipeline-stage";
 //     let app: cdk.App;
 //     let stack: AtatNetFirewall.NetInfraPipelineStage;
 describe("Firewall Stack Test", () => {
-test("The stack creates successfully with a VPC Firewall defined", () => {
+test("The stack creates successfully if the pipeline stage is complete", () => {
   // GIVEN
   const app = new cdk.App();
   // WHEN

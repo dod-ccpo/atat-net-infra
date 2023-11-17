@@ -5,7 +5,11 @@ import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as events from "aws-cdk-lib/aws-events";
+import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as wafv2 from "aws-cdk-lib/aws-wafv2";
+import * as path from 'path';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from "constructs";
 import { NagSuppressions } from "cdk-nag";
 import { FirewallVpcStack } from "./atat-net-infra-firewall-vpc";
@@ -20,6 +24,8 @@ export interface AtatNetStackProps extends cdk.StackProps {
 
 export class AlbStack extends cdk.Stack {
     public readonly firewallVpc: ec2.IVpc;
+    public readonly targetGroupArn: string;
+    // targetGroup: cdk.aws_elasticloadbalancingv2.ApplicationTargetGroup;
     constructor(scope: Construct, id: string, props: AtatNetStackProps) {
         super(scope, id, props);
         this.templateOptions.description = "Creates the Application Load Balancer in the firewall VPC for inspection of the ATAT transit environment";
@@ -78,6 +84,7 @@ export class AlbStack extends cdk.Stack {
             healthyHttpCodes: "200,403",
             },
           });
+        this.targetGroupArn = targetGroup.targetGroupArn
 
         const addApplicationTargetGroupsProps: elbv2.AddApplicationTargetGroupsProps = {
             targetGroups: [targetGroup],
@@ -107,43 +114,100 @@ export class AlbStack extends cdk.Stack {
             certificates: [certificate],
         });
         listener.addTargetGroups('VpcEndpointTg', addApplicationTargetGroupsProps )
+        
+        // WAF Association
         const cfnWebACLAssociation = new wafv2.CfnWebACLAssociation(this,'CdkWebACLAssociation', {
           resourceArn:loadBalancer.loadBalancerArn,
           webAclArn: props.webACL,
         });
-      } else {} // TODO: add logic for prod and egress vpc at later point
+      } else {} // TODO: add logic for prod and egress vpc at later point..
 
-            // TODO: add logic for prod and egress vpc at later point
-            const albeventbus = new events.EventBus(this, 'ALB-Bus-Event', {
-              eventBusName: 'ATAT-ALB-Event-Bus'
-            });
+      // Role for Alb Event Lambda
+      const albLambdaRole = new iam.Role(this, 'AlbLambdaRole', {
+        assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+        managedPolicies: [
+          iam.ManagedPolicy.fromAwsManagedPolicyName(
+            'service-role/AWSLambdaBasicExecutionRole'
+          ),
+        ],
+  
+      });
+  
+      // Create an inline policy for the IAM role
+      const inlinePolicy = new iam.Policy(this, 'AlbLambdaInlinePolicy', {
+        statements: [
+          new iam.PolicyStatement({
+            actions: [
+                    'elasticloadbalancing:RegisterTargets',
+                  ],
+            effect: iam.Effect.ALLOW,
+            resources: ['*'],
+          }),
+        ],
+      });
+    
+      // Attach the inline policy to the IAM role
+      albLambdaRole.attachInlinePolicy(inlinePolicy);
+  
+      NagSuppressions.addResourceSuppressions(
+        inlinePolicy, [
+        {
+          id: "NIST.800.53.R4-IAMNoInlinePolicy",
+          reason: "Inline policy holds no security threat",
+        },
+      ]);
+  
+      // Lambda function as trigger to event for ALB register targets
+      const albLambda = new NodejsFunction(this, 'ALBFunction', {
+        description: 'Lambda function as trigger to event for ALB Register Targets ',
+        entry: path.join(__dirname, 'lambda/alb/index.ts'),
+        runtime: lambda.Runtime.NODEJS_18_X,
+        handler: 'handler',
+        role: albLambdaRole,
+        timeout: cdk.Duration.seconds(120),
+        environment: {
+          targetGroupArn: this.targetGroupArn,
+        }
+      });
+  
+      NagSuppressions.addResourceSuppressions(albLambda, [
+        {
+          id: "NIST.800.53.R4-LambdaInsideVPC",
+          reason: "Testing lambda, will add VPC in the future",
+        }
+      ]);
 
-            const orgSplit = props.orgARN.split("/");
-            const orgID = orgSplit[1]
-      
-            albeventbus.addToResourcePolicy(new iam.PolicyStatement({
-              sid: 'TransitALBBusEventPolicy',
-              effect: iam.Effect.ALLOW,
-              actions: ['events:PutEvents'],
-              principals: [new iam.StarPrincipal()],
-              resources: [albeventbus.eventBusArn],
-              conditions: {
-                'StringEquals': {
-                  'aws:PrincipalOrgID': orgID,
-            },
-          },}
-          ));
-      
-            const albeventrule = new events.Rule(this, "ALB-IP-TargetGroup-rule", {
-              eventPattern: {
-                source: ["event.sender.source"],
-                detail: {
-                  eventName: ["EventA.Sent"],
-                },
-              },
-              eventBus: albeventbus,
-            });
-            // targets: [targets.EventBus.bind(props.eventbus)],
-            // eventrule.addTarget(new targets.EventBus(events.EventBus.fromEventBusArn(this, "External", props.eventbus)));
+      // Event Bus and Custom Event for orchestration of finding API Gateway vpc endpoint IP addresses
+      const albeventbus = new events.EventBus(this, 'ALB-Bus-Event', {
+        eventBusName: 'ATAT-ALB-Event-Bus'
+      });
+
+      const orgSplit = props.orgARN.split("/");
+      const orgID = orgSplit[1]
+
+      albeventbus.addToResourcePolicy(new iam.PolicyStatement({
+        sid: 'TransitALBBusEventPolicy',
+        effect: iam.Effect.ALLOW,
+        actions: ['events:PutEvents'],
+        principals: [new iam.StarPrincipal()],
+        resources: [albeventbus.eventBusArn],
+        conditions: {
+          'StringEquals': {
+            'aws:PrincipalOrgID': orgID,
+      },
+    },}
+    ));
+
+    const albeventrule = new events.Rule(this, "ALB-IP-TargetGroup-rule", {
+      eventPattern: {
+        detail: {
+          eventName: ["EventA.Sent"],
+        },
+        source: ["event.sender.source"],
+      },
+      eventBus: albeventbus,
+      targets: [new targets.LambdaFunction(albLambda)],
+    });
+    
     }
 }

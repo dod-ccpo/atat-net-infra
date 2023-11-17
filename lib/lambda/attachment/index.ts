@@ -35,16 +35,16 @@ export const handler = async (event: any) => {
     //     throw new Error("vpc type is not internal or firewall")
     // }
 
-    // let associationRouteTableID = undefined;
-    // if (vpcType == "internal" && process.env.internalRouteTableID) {
-    //     associationRouteTableID = process.env.intenalRouteTableID
-    // } else associationRouteTableID = process.env.firewallRouteTableID
-
     let associationRouteTableID = undefined;
     if (vpcType == "firewall" && process.env.firewallRouteTableID) {
         associationRouteTableID = process.env.firewallRouteTableID
     } else associationRouteTableID = process.env.internalRouteTableID
 
+    
+    // let associationRouteTableID = undefined;
+    // if (vpcType == "internal" && process.env.internalRouteTableID) {
+    //     associationRouteTableID = process.env.intenalRouteTableID
+    // } else associationRouteTableID = process.env.firewallRouteTableID
 
     const describeAttachmentCommand = new DescribeTransitGatewayAttachmentsCommand({
         TransitGatewayAttachmentIds: [attachmentID]
@@ -60,33 +60,6 @@ export const handler = async (event: any) => {
        await waitAvailable(attachmentID);
     };
 
-    // Disassociate the attachment if already attached
-    if (tgwAttachments.TransitGatewayAttachments[0].Association !== undefined) {
-        const routeTableID = tgwAttachments.TransitGatewayAttachments[0].Association?.TransitGatewayRouteTableId
-
-        const disassociateCommand = new DisassociateTransitGatewayRouteTableCommand({
-            TransitGatewayAttachmentId: attachmentID,
-            TransitGatewayRouteTableId: routeTableID,
-        });
-
-        let associated = true;
-        while (associated) {
-            // Disassociate attachment
-            await ec2Client.send(disassociateCommand);
-
-            // Wait for attachment to get disassociated
-            await setTimeout(2000);
-
-            let attachments = await ec2Client.send(describeAttachmentCommand);
-            
-            if (attachments.TransitGatewayAttachments) {
-                if (attachments.TransitGatewayAttachments[0].Association == undefined) {
-                    associated = false;
-                };
-            };
-        };
-    }
-
     //associate attachment with correct route table
     const attachCommand = new AssociateTransitGatewayRouteTableCommand({
         TransitGatewayAttachmentId: attachmentID,
@@ -95,9 +68,10 @@ export const handler = async (event: any) => {
 
     await ec2Client.send(attachCommand);
 
-    if (vpcType == "internal") {
+    //propagate attachment with correct route table
+    if (vpcType != "firewall") {
         await ec2Client.send(new EnableTransitGatewayRouteTablePropagationCommand({
-            TransitGatewayRouteTableId: process.env.inspectionRouteTableID,
+            TransitGatewayRouteTableId: process.env.firewallRouteTableID,
             TransitGatewayAttachmentId: attachmentID,
         }));
     };

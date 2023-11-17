@@ -95,7 +95,7 @@ export const handler = async (event: any) => {
 
     await ec2Client.send(attachCommand);
 
-    if (vpcType == "internal") {
+    if (vpcType != "firewall") {
         await ec2Client.send(new EnableTransitGatewayRouteTablePropagationCommand({
             TransitGatewayRouteTableId: process.env.inspectionRouteTableID,
             TransitGatewayAttachmentId: attachmentID,

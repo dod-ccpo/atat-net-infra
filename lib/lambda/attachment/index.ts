@@ -35,17 +35,17 @@ export const handler = async (event: any) => {
     //     throw new Error("vpc type is not internal or firewall")
     // }
 
-    // let associationRouteTableID = undefined;
-    // if (vpcType == "internal" && process.env.internalRouteTableID) {
-    //     associationRouteTableID = process.env.intenalRouteTableID
-    // } else associationRouteTableID = process.env.firewallRouteTableID
-
     let associationRouteTableID = undefined;
     if (vpcType == "firewall" && process.env.firewallRouteTableID) {
         associationRouteTableID = process.env.firewallRouteTableID
     } else associationRouteTableID = process.env.internalRouteTableID
 
-
+    
+    // let associationRouteTableID = undefined;
+    // if (vpcType == "internal" && process.env.internalRouteTableID) {
+    //     associationRouteTableID = process.env.intenalRouteTableID
+    // } else associationRouteTableID = process.env.firewallRouteTableID
+    
     const describeAttachmentCommand = new DescribeTransitGatewayAttachmentsCommand({
         TransitGatewayAttachmentIds: [attachmentID]
     });
@@ -96,7 +96,7 @@ export const handler = async (event: any) => {
     await ec2Client.send(attachCommand);
 
     //propagate attachment with correct route table
-    if (vpcType == "jesse-test") {
+    if (vpcType != "firewall") {
         await ec2Client.send(new EnableTransitGatewayRouteTablePropagationCommand({
             TransitGatewayRouteTableId: process.env.firewallRouteTableID,
             TransitGatewayAttachmentId: attachmentID,

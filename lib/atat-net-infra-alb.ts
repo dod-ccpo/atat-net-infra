@@ -201,7 +201,7 @@ export class AlbStack extends cdk.Stack {
     const albeventrule = new events.Rule(this, "ALB-IP-TargetGroup-rule", {
       eventPattern: {
         source: ["event.sender.source"],
-        detailType: ["EventA.Sent"],
+        detailType: ["EventA.Sent"]
       },
       eventBus: albeventbus,
       targets: [new targets.LambdaFunction(albLambda)],

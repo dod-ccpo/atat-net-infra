@@ -206,15 +206,5 @@ export class AlbStack extends cdk.Stack {
       eventBus: albeventbus,
       targets: [new targets.LambdaFunction(albLambda)],
     });
-
-    const tgweventrule = new events.Rule(this, "TGW-attachment-ID-rule", {
-      eventPattern: {
-        source: ["CustomSource"],
-        detailType: ["PrivateIpAddress"],
-      },
-      eventBus: albeventbus,
-      targets: [new targets.LambdaFunction(albLambda)],
-    });
-    
     }
 }

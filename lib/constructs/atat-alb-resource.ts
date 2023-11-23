@@ -1,17 +1,13 @@
-import * as cdk from "aws-cdk-lib";
-import * as s3 from "aws-cdk-lib/aws-s3";
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import { Construct } from 'constructs';
+export class MySecureBucket extends s3.Bucket {
+  constructor(scope: Construct, id: string, props?: s3.BucketProps) {
 
-export interface AtatNetStackProps extends cdk.StackProps {
-    environmentName?: string;
-    apiDomain: string;
-    orgARN: string;
-    webACL: string;
-}
-
-export async function creates3Bucket(this: any, envName: string) {
-    const myBucket = new s3.Bucket(this, `${envName}-test-bucket`, {
-        encryption: s3.BucketEncryption.S3_MANAGED,
-        enforceSSL: true,
-        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+    super(scope, id, { 
+      ...props, 
+      versioned: true,
+      publicReadAccess: false,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL
     });
+  }
 }

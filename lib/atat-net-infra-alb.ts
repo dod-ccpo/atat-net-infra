@@ -13,7 +13,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from "constructs";
 import { NagSuppressions } from "cdk-nag";
 import { FirewallVpcStack } from "./atat-net-infra-firewall-vpc";
-import { MySecureBucket } from '../lib/constructs/atat-alb-resource';
+import { MySecureBucket } from './constructs/atat-s3-resource';
 
 export interface AtatNetStackProps extends cdk.StackProps {
     atatfirewallVpc: FirewallVpcStack;
@@ -32,7 +32,7 @@ export class AlbStack extends cdk.Stack {
         this.templateOptions.description = "Creates the Application Load Balancer in the firewall VPC for inspection of the ATAT transit environment";
 
         if (props.environmentName) {
-        const new3bucket = new MySecureBucket(this, props.environmentName)
+        const new3bucket = new MySecureBucket(this, props.environmentName + "-test-export-bucket-1993")
         }
 
         // S3 bucket for ALB access logging

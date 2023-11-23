@@ -182,9 +182,6 @@ export class AlbStack extends cdk.Stack {
         eventBusName: 'ATAT-ALB-Event-Bus'
       });
 
-      const orgSplit = props.orgARN.split("/");
-      const orgID = orgSplit[1]
-
       albeventbus.addToResourcePolicy(new iam.PolicyStatement({
         sid: 'TransitALBBusEventPolicy',
         effect: iam.Effect.ALLOW,
@@ -193,7 +190,7 @@ export class AlbStack extends cdk.Stack {
         resources: [albeventbus.eventBusArn],
         conditions: {
           'StringEquals': {
-            'aws:PrincipalOrgID': orgID,
+            'aws:PrincipalOrgID': props.orgARN,
       },
     },}
     ));

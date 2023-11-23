@@ -11,7 +11,7 @@ test("The stack creates successfully if the pipeline stage is complete", () => {
   const app = new cdk.App();
   // WHEN
   const network = new AtatNetFirewall.NetInfraPipelineStage(app, "TestFirewallStack", {
-    orgARN: "y-675jgh",
+    fullorgARN: "y-675jgh",
     environmentName: "Test",
     apiDomain: "hello.world"
   });

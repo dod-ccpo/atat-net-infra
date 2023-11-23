@@ -32,7 +32,22 @@ export class AlbStack extends cdk.Stack {
         this.templateOptions.description = "Creates the Application Load Balancer in the firewall VPC for inspection of the ATAT transit environment";
 
         if (props.environmentName) {
-        const new3bucket = new MySecureBucket(this, props.environmentName + "-test-export-bucket-1993")
+        const news3bucket = new MySecureBucket(this, props.environmentName + "-test-export-bucket-1993")
+
+        NagSuppressions.addResourceSuppressions(news3bucket, [
+          {
+            id: "NIST.800.53.R4-S3BucketLoggingEnabled",
+            reason: "The ideal bucket for this to log to is itself. That creates complexity with receiving other logs",
+          },
+          {
+            id: "NIST.800.53.R4-S3BucketReplicationEnabled",
+            reason: "Cross region replication is not required for this use case",
+          },
+          {
+            id: "NIST.800.53.R4-S3BucketDefaultLockEnabled",
+            reason: "Server Access Logs cannot be delivered to a bucket with Object Lock enabled",
+          },
+        ]);
         }
 
         // S3 bucket for ALB access logging

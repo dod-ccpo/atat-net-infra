@@ -23,7 +23,7 @@ export class NetInfraPipelineStage extends cdk.Stage {
 
     // atat-net-infra-tgw stack
     const atatTgw = new TransitGatewayStack(this, 'AtatTransitGateway', {
-      orgARN: orgID
+      orgARN: props.fullorgARN
     });
 
     // atat-net-infra-firewall-policy stack

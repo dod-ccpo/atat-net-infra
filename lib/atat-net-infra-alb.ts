@@ -33,7 +33,6 @@ export class AlbStack extends cdk.Stack {
 
         if (props.environmentName) {
         const news3bucket = new MySecureBucket(this, props.environmentName + "-test-export-bucket-1993")
-
         NagSuppressions.addResourceSuppressions(news3bucket, [
           {
             id: "NIST.800.53.R4-S3BucketLoggingEnabled",

@@ -7,6 +7,7 @@ export class MySecureBucket extends s3.Bucket {
       ...props,
       encryption: s3.BucketEncryption.S3_MANAGED, 
       versioned: true,
+      enforceSSL: true,
       publicReadAccess: false,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL
     });

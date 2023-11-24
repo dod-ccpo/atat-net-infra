@@ -14,6 +14,8 @@ import { Construct } from "constructs";
 import { NagSuppressions } from "cdk-nag";
 import { FirewallVpcStack } from "./atat-net-infra-firewall-vpc";
 import { MySecureBucket } from './constructs/atat-s3-resource';
+import { AtatAlbResource } from "./constructs/atat-alb-resource";
+import { vpc } from "cdk-nag/lib/rules";
 
 export interface AtatNetStackProps extends cdk.StackProps {
     atatfirewallVpc: FirewallVpcStack;
@@ -110,13 +112,8 @@ export class AlbStack extends cdk.Stack {
         };
 
       // ALB confirguration
-        const loadBalancer = new elbv2.ApplicationLoadBalancer(this, "LoadBalancer", {
-          vpc: props.atatfirewallVpc.firewallVpc,
-          vpcSubnets: { subnetGroupName: 'Alb' },
-          internetFacing: true,
-          deletionProtection: true,
-          dropInvalidHeaderFields: true,
-          });
+        const loadBalancer = new AtatAlbResource(this, "LoadBalancer",);
+
           loadBalancer.logAccessLogs(accessLogsBucket);
           loadBalancer.setAttribute("routing.http.drop_invalid_header_fields.enabled", "true");
           // We're behind NAT so we need to allow this

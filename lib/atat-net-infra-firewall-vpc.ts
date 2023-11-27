@@ -332,6 +332,57 @@ export class FirewallVpcStack extends cdk.Stack {
                 vpcEndpointId: endpoint.getAttString('EndpointId'),
                 });
             });
+
+          this.firewallVpc
+          .selectSubnets({ subnetGroupName: 'Firewall' })
+          .subnets.forEach((subnet) => {
+          const subnetName = subnet.node.path.split('/').pop(); // E.g. TransitGatewayStack/InspectionVPC/PublicSubnet1
+
+          // Custom resource returns AWS Network Firewall endpoint ID in correct availability zone.
+          const endpoint = new CustomResource(
+              this,
+              `AnfEndpointFor-${subnetName}`,
+              {
+              serviceToken: provider.serviceToken,
+              properties: {
+                  FirewallName: cfnFirewall.firewallName,
+                  AvailabilityZone: subnet.availabilityZone,
+              },
+              }
+          );
+
+          NagSuppressions.addResourceSuppressionsByPath(
+              this,
+              `/${this.node.path}/Provider/framework-onEvent/Resource`,
+              [
+                  {
+                  id: "NIST.800.53.R4-LambdaInsideVPC",
+                  reason:
+                      "The AwsCustomResource type does not support being placed in a VPC. " +
+                      "This can only ever make limited-permissions calls that will appear in CloudTrail.",
+                  },
+              ]
+          );
+
+          NagSuppressions.addResourceSuppressionsByPath(
+              this, 
+              `/${this.node.path}/Provider/framework-onEvent/ServiceRole/DefaultPolicy/Resource`,
+              [
+                  {
+                  id: "NIST.800.53.R4-IAMNoInlinePolicy",
+                  reason: "Inline policy holds no security threat",
+                  },
+          ]);
+  
+          // Create default route towards firewall endpoint from TGW subnets.
+          const ec2CfnRoute = new ec2.CfnRoute(this, `${subnetName}AnfRoute`, {
+              destinationCidrBlock: '10.0.0.0/8',
+              routeTableId: subnet.routeTable.routeTableId,
+              transitGatewayId: props.tgwId,
+              }).addDependency(tgwAttachment);
+          });
+
+
     }
 }
 

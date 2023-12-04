@@ -332,6 +332,19 @@ export class FirewallVpcStack extends cdk.Stack {
                 vpcEndpointId: endpoint.getAttString('EndpointId'),
                 });
             });
+
+          this.firewallVpc
+          .selectSubnets({ subnetGroupName: 'Firewall' })
+          .subnets.forEach((subnet) => {
+          const subnetName = subnet.node.path.split('/').pop(); // E.g. TransitGatewayStack/InspectionVPC/PublicSubnet1
+  
+          // Create summary route towards the TGW Id from firewall subnets.
+          const ec2CfnRoute = new ec2.CfnRoute(this, `${subnetName}AnfRoute`, {
+              destinationCidrBlock: '10.0.0.0/8',
+              routeTableId: subnet.routeTable.routeTableId,
+              transitGatewayId: props.tgwId,
+              }).addDependency(tgwAttachment);
+          });
     }
 }
 

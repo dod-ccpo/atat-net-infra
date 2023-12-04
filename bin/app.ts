@@ -23,6 +23,14 @@ export function createApp(this: any, props?: cdk.AppProps): cdk.App {
       }
       const environmentName = utils.normalizeEnvironmentName(environmentParam);
 
+  if (!utils.isString(vpcCidrParam) || !validateCidr(vpcCidrParam)) {
+        const err =
+          `A VpcCidr must be provided for non-Sandbox environments (use the ${AtatContextValue.VPC_CIDR} context key) ` +
+          "and it must be a valid CIDR block.";
+        console.error(err);
+        throw new Error(err);
+      }
+
   const pipelineStack = new AtatPipelineStack(app, 'AtatInfraPipeline', {
     environmentName,
     apiDomainName: apiDomainParam,

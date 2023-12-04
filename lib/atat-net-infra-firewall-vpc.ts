@@ -10,6 +10,7 @@ import * as path from 'path';
 import {  aws_networkfirewall as networkfirewall } from 'aws-cdk-lib';
 import { CustomResource, Duration, RemovalPolicy } from 'aws-cdk-lib';
 import { NagSuppressions, NIST80053R4Checks } from 'cdk-nag';
+import { error } from 'console';
 
 export interface AtatNetStackProps extends cdk.StackProps {
     /**
@@ -66,7 +67,8 @@ export class FirewallVpcStack extends cdk.Stack {
             ]
         });
         this.firewallVpc = firewallVpc;
-    } else { const firewallVpc = new ec2.Vpc(this, 'Firewall-Vpc', {
+    } else{
+       const firewallVpc = new ec2.Vpc(this, 'Firewall-Vpc', {
             ipAddresses: props.vpcCidr ? ec2.IpAddresses.cidr(props.vpcCidr) : undefined,
             restrictDefaultSecurityGroup: true,
             maxAzs: 2,

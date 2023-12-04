@@ -9,6 +9,7 @@ import * as path from 'path';
 import { Construct } from 'constructs';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { NagSuppressions, NIST80053R4Checks } from 'cdk-nag';
+import { error } from 'console';
 
 
 export interface AtatProps extends cdk.StackProps {
@@ -83,8 +84,13 @@ export class TransitGatewayStack extends cdk.Stack {
       resourceArns: [transitGatewayArn],
     });
 
-    const orgSplit = props.orgARN.split("/");
-    this.orgID = orgSplit[1]
+    if(typeof props.orgARN === 'string') {
+      const orgSplit = props.orgARN.split("/");
+      this.orgID = orgSplit[1]
+    } else {
+       console.log("Error")
+    }
+
 
     this.createEventHandling();
   }

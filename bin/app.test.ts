@@ -1,4 +1,4 @@
-import { createApp } from "../bin/app";
+import { createApp } from "./app"; 
 
 const cidrError =
   "A VpcCidr must be provided for non-Sandbox environments (use the atat:VpcCidr context key) and it must be" +

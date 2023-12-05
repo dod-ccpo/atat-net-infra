@@ -1,5 +1,6 @@
 import { createApp } from "./app"; 
 
+// test case for app stack
 const cidrError =
   "A VpcCidr must be provided for non-Sandbox environments (use the atat:VpcCidr context key) and it must be" +
   " a valid CIDR block";

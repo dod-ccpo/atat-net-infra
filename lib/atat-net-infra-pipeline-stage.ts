@@ -10,7 +10,7 @@ import { WebApplicationFirewall } from './atat-net-infra-waf'
 export interface AtatProps extends cdk.StackProps {
   vpcCidr?: string;
   environmentName: string;
-  orgARN: string;
+  fullorgARN: string;
   apiDomain: string;
 }
 
@@ -18,9 +18,12 @@ export class NetInfraPipelineStage extends cdk.Stage {
   constructor(scope: Construct, id: string, props: cdk.StageProps & AtatProps ) {
     super(scope, id, props);
 
+    const orgSplit = props.fullorgARN.split("/");
+    const orgID = orgSplit[1]
+
     // atat-net-infra-tgw stack
     const atatTgw = new TransitGatewayStack(this, 'AtatTransitGateway', {
-      orgARN: props.orgARN
+      orgARN: props.fullorgARN
     });
 
     // atat-net-infra-firewall-policy stack
@@ -33,7 +36,7 @@ export class NetInfraPipelineStage extends cdk.Stage {
       tgwId: atatTgw.tgwId,
       fwPolicy: atatFirewallPolicyStack.fwPolicy,
       internalRouteTableId: atatTgw.internalRouteTable.ref,
-      orgARN: props.orgARN
+      orgARN: orgID
     });
 
     // atat-net-infra-waf stack
@@ -46,7 +49,7 @@ export class NetInfraPipelineStage extends cdk.Stage {
       environmentName: props.environmentName,
       atatfirewallVpc: atatFirewallVpc,
       apiDomain: props.apiDomain,
-      orgARN: props.orgARN,
+      orgARN: orgID,
       webACL: atatWebApplicationFirewall.webACL,
     });
 

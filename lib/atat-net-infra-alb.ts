@@ -13,6 +13,9 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from "constructs";
 import { NagSuppressions } from "cdk-nag";
 import { FirewallVpcStack } from "./atat-net-infra-firewall-vpc";
+import { MySecureBucket } from './constructs/atat-s3-resource';
+import { AtatAlbResource } from "./constructs/atat-alb-resource";
+import { vpc } from "cdk-nag/lib/rules";
 
 export interface AtatNetStackProps extends cdk.StackProps {
     atatfirewallVpc: FirewallVpcStack;
@@ -29,6 +32,24 @@ export class AlbStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props: AtatNetStackProps) {
         super(scope, id, props);
         this.templateOptions.description = "Creates the Application Load Balancer in the firewall VPC for inspection of the ATAT transit environment";
+
+        if (props.environmentName) {
+        const news3bucket = new MySecureBucket(this, props.environmentName + "-test-export-bucket-1993")
+        NagSuppressions.addResourceSuppressions(news3bucket, [
+          {
+            id: "NIST.800.53.R4-S3BucketLoggingEnabled",
+            reason: "The ideal bucket for this to log to is itself. That creates complexity with receiving other logs",
+          },
+          {
+            id: "NIST.800.53.R4-S3BucketReplicationEnabled",
+            reason: "Cross region replication is not required for this use case",
+          },
+          {
+            id: "NIST.800.53.R4-S3BucketDefaultLockEnabled",
+            reason: "Server Access Logs cannot be delivered to a bucket with Object Lock enabled",
+          },
+        ]);
+        }
 
         // S3 bucket for ALB access logging
         const accessLogsBucket = new s3.Bucket(this, "LoadBalancerAccessLogs", {
@@ -91,13 +112,8 @@ export class AlbStack extends cdk.Stack {
         };
 
       // ALB confirguration
-        const loadBalancer = new elbv2.ApplicationLoadBalancer(this, "LoadBalancer", {
-          vpc: props.atatfirewallVpc.firewallVpc,
-          vpcSubnets: { subnetGroupName: 'Alb' },
-          internetFacing: true,
-          deletionProtection: true,
-          dropInvalidHeaderFields: true,
-          });
+        const loadBalancer = new AtatAlbResource(this, "LoadBalancer");
+
           loadBalancer.logAccessLogs(accessLogsBucket);
           loadBalancer.setAttribute("routing.http.drop_invalid_header_fields.enabled", "true");
           // We're behind NAT so we need to allow this
@@ -182,9 +198,6 @@ export class AlbStack extends cdk.Stack {
         eventBusName: 'ATAT-ALB-Event-Bus'
       });
 
-      const orgSplit = props.orgARN.split("/");
-      const orgID = orgSplit[1]
-
       albeventbus.addToResourcePolicy(new iam.PolicyStatement({
         sid: 'TransitALBBusEventPolicy',
         effect: iam.Effect.ALLOW,
@@ -193,7 +206,7 @@ export class AlbStack extends cdk.Stack {
         resources: [albeventbus.eventBusArn],
         conditions: {
           'StringEquals': {
-            'aws:PrincipalOrgID': orgID,
+            'aws:PrincipalOrgID': props.orgARN,
       },
     },}
     ));

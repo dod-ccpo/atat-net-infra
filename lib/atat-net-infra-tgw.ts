@@ -73,7 +73,7 @@ export class TransitGatewayStack extends cdk.Stack {
     const transitGatewayArn = `arn:aws-us-gov:ec2:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:transit-gateway/${this.transitGateway.attrId}`;
 
     // Retrieve the ARN of the principal from props/context-values
-    const {orgARN } = props;
+    const { orgARN } = props;
     
     // RAM Share to Dev Org 
     const cfnResourceShare  = new ram.CfnResourceShare(this, 'TgwResourceShare', {
@@ -82,9 +82,6 @@ export class TransitGatewayStack extends cdk.Stack {
       principals: [orgARN],
       resourceArns: [transitGatewayArn],
     });
-
-    const orgSplit = props.orgARN.split("/");
-    this.orgID = orgSplit[1]
 
     this.createEventHandling();
   }

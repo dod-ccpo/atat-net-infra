@@ -112,7 +112,7 @@ export class AlbStack extends cdk.Stack {
         };
 
       // ALB confirguration
-        const loadBalancer = new AtatAlbResource(this, "LoadBalancer",);
+        const loadBalancer = new AtatAlbResource(this, "LoadBalancer");
 
           loadBalancer.logAccessLogs(accessLogsBucket);
           loadBalancer.setAttribute("routing.http.drop_invalid_header_fields.enabled", "true");
